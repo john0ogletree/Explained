@@ -32,4 +32,30 @@ export async function onRequest(context) {
       <title>${escapeHtml(t.title)}</title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
-      <
+      <pubDate>${pubDate}</pubDate>
+      <description>${escapeHtml(t.title)}${t.tags.length ? ` — tagged ${escapeHtml(t.tags.map(x => x.name).join(", "))}` : ""}</description>
+    </item>`;
+  }).join("");
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Explained</title>
+    <link>${SITE}</link>
+    <description>Topics I've broken down and written about.</description>
+    <language>en-us</language>
+    <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />
+    ${items}
+  </channel>
+</rss>`;
+
+  const response = new Response(xml, {
+    headers: {
+      "Content-Type": "application/rss+xml;charset=UTF-8",
+      "Cache-Control": "public, max-age=300",
+    },
+  });
+
+  context.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
