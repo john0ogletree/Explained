@@ -111,7 +111,6 @@ function sharedStyles() {
     }
     .back:hover { color: var(--accent); }
 
-    /* Search */
     .search-wrap { margin: 1.5rem 0 1rem; }
     #topic-search {
       width: 100%;
@@ -124,13 +123,9 @@ function sharedStyles() {
       font-family: inherit;
       transition: border-color 0.15s ease;
     }
-    #topic-search:focus {
-      outline: none;
-      border-color: var(--accent-strong);
-    }
+    #topic-search:focus { outline: none; border-color: var(--accent-strong); }
     #topic-search::placeholder { color: var(--muted); }
 
-    /* Filters */
     .filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1.5rem 0; }
     .tag-pill {
       background: transparent;
@@ -153,7 +148,6 @@ function sharedStyles() {
       font-weight: 600;
     }
 
-    /* Topic list */
     .topics { display: flex; flex-direction: column; gap: 0.6rem; }
     .topic-card {
       display: flex;
@@ -194,7 +188,6 @@ function sharedStyles() {
     }
     .topic-card:hover .topic-arrow { transform: translateX(4px); }
 
-    /* Pagination */
     .pagination {
       display: flex;
       justify-content: center;
@@ -247,7 +240,6 @@ function sharedStyles() {
     }
     .page-tag:hover { background: rgba(245,158,11,0.2); }
 
-    /* Article */
     article { font-size: 1rem; }
     article h1 {
       font-size: 2rem;
@@ -306,6 +298,38 @@ function sharedStyles() {
       font-style: italic;
     }
     article hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    /* Tables */
+    article table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 1.5rem;
+      font-size: 0.92rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: block;
+      overflow-x: auto;
+    }
+    article thead {
+      background: var(--card);
+    }
+    article th {
+      padding: 10px 14px;
+      text-align: left;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    article td {
+      padding: 9px 14px;
+      border-bottom: 1px solid rgba(51,65,85,0.5);
+      color: var(--text);
+    }
+    article tbody tr:last-child td { border-bottom: none; }
+    article tbody tr:hover { background: rgba(38,52,73,0.4); }
 
     footer {
       margin-top: 3rem;
