@@ -1,63 +1,37 @@
 import { renderPage } from "../_shared/layout.js";
-import { parseFrontmatter } from "../_shared/markdown.js";
-import { listTopics, fetchRawMarkdown } from "../_shared/github.js";
+import { getAllTopics, renderTopicCards } from "../_shared/github.js";
 
 export async function onRequest(context) {
   const { params, env, request } = context;
-  const tag = decodeURIComponent(params.tag).toLowerCase();
+  const tag = params.tag;
   const token = env.GITHUB_TOKEN;
 
-  // --- Edge cache ---
   const cache = caches.default;
   const cacheKey = new Request(new URL(`/__cache/tag/${tag}`, request.url).toString());
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
-  const mdFiles = await listTopics(token);
+  const allTopics = await getAllTopics(token);
+  const matching = allTopics.filter(t => t.tags.includes(tag));
 
-  const topics = await Promise.all(
-    mdFiles.map(async (f) => {
-      const slug = f.name.replace(".md", "");
-      const raw = await fetchRawMarkdown(f.name, token);
-      const { tags } = parseFrontmatter(raw);
-      return {
-        slug,
-        title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-        tags: tags.map(t => t.toLowerCase()),
-      };
-    })
-  );
+  const allTags = [...new Set(allTopics.flatMap(t => t.tags))].sort();
 
-  const matching = topics.filter(t => t.tags.includes(tag));
-
-  const topicCardsHtml = matching
-    .sort((a, b) => a.title.localeCompare(b.title))
-    .map(t => `
-      <a class="topic-card" href="/topics/${t.slug}">
-        <div class="topic-info">
-          <span class="topic-title">${t.title}</span>
-          <div class="topic-tags">${t.tags.map(tag => `<span class="topic-tag">${tag}</span>`).join("")}</div>
-        </div>
-        <span class="topic-arrow">→</span>
-      </a>
-    `)
+  const tagPillsHtml = allTags
+    .map(t => `<a class="tag-pill ${t === tag ? "active" : ""}" href="/tags/${t}">${t}</a>`)
     .join("");
 
   const body = `
-    <div class="tag-header">
-      <span class="tag-label">Tagged:</span>
-      <span class="tag-name">${tag}</span>
-      <span class="tag-count">${matching.length} topic${matching.length === 1 ? "" : "s"}</span>
-    </div>
+    <h2 style="color:var(--accent); margin-top:0;">Tag: ${tag}</h2>
+    ${allTags.length ? `<div class="filters">${tagPillsHtml}</div>` : ""}
     <div class="topics">
-      ${matching.length ? topicCardsHtml : '<p class="empty">No topics with this tag yet.</p>'}
+      ${matching.length ? renderTopicCards(matching) : '<p class="empty">No topics with this tag.</p>'}
     </div>
   `;
 
   const html = renderPage({
-    title: `#${tag} — Explained`,
+    title: `${tag} — Explained`,
+    subtitle: `Topics tagged "${tag}".`,
     body,
-    showHeader: false,
   });
 
   const response = new Response(html, {
