@@ -1,4 +1,4 @@
-import { getAllTopics, fetchRawMarkdown } from "./_shared/github.js";
+import { getAllTopics } from "./_shared/github.js";
 import { escapeHtml } from "./_shared/utils.js";
 
 const SITE = "https://explained.jao.life"; // ← change if your domain differs
@@ -14,7 +14,6 @@ export async function onRequest(context) {
 
   const topics = await getAllTopics(token);
 
-  // Sort by lastUpdated desc (fallback: title)
   topics.sort((a, b) => {
     if (a.lastUpdated && b.lastUpdated) {
       return new Date(b.lastUpdated) - new Date(a.lastUpdated);
