@@ -39,6 +39,7 @@ export async function onRequest(context) {
     subtitle: "Topics I've broken down and written about.",
     body,
     showSearch: true,
+    showCommentCounts: true,
   });
 
   const response = new Response(html, {
