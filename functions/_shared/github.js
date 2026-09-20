@@ -1,11 +1,11 @@
 import { parseFrontmatter } from "./markdown.js";
-import { withCache } from "./utils.js";
+import { withCache, readingTime } from "./utils.js";
 
 const REPO = "John0ogletree/Explained";
 const BRANCH = "main";
 
 const METADATA_CACHE_KEY = "https://internal.explained/__cache/topics-metadata";
-const METADATA_TTL = 300; // seconds
+const METADATA_TTL = 300;
 
 export function githubHeaders(token, accept = "application/vnd.github+json") {
   const headers = {
@@ -35,9 +35,16 @@ export async function fetchRawMarkdown(filename, token) {
   return res.text();
 }
 
-/**
- * Uncached version: hits GitHub for every topic file.
- */
+async function fetchLastCommitDate(filename, token) {
+  const res = await fetch(
+    `https://api.github.com/repos/${REPO}/commits?path=topics/${filename}&per_page=1`,
+    { headers: githubHeaders(token) }
+  );
+  if (!res.ok) return null;
+  const commits = await res.json();
+  return commits[0]?.commit?.committer?.date || null;
+}
+
 async function fetchAllTopicsFromGitHub(token) {
   const mdFiles = await listTopics(token);
 
@@ -46,10 +53,14 @@ async function fetchAllTopicsFromGitHub(token) {
       const slug = f.name.replace(".md", "");
       const raw = await fetchRawMarkdown(f.name, token);
       const { tags } = parseFrontmatter(raw);
+      const lastUpdated = await fetchLastCommitDate(f.name, token);
+
       return {
         slug,
         title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
         tags,
+        lastUpdated,
+        readingTime: readingTime(raw),
       };
     })
   );
@@ -57,9 +68,6 @@ async function fetchAllTopicsFromGitHub(token) {
   return topics.sort((a, b) => a.title.localeCompare(b.title));
 }
 
-/**
- * Cached version: only hits GitHub once per TTL.
- */
 export async function getAllTopics(token) {
   return withCache(METADATA_CACHE_KEY, METADATA_TTL, () => fetchAllTopicsFromGitHub(token));
 }
@@ -70,7 +78,9 @@ export function renderTopicCards(topics) {
       <a class="topic-card" href="/topics/${t.slug}" data-search="${t.title.toLowerCase()} ${t.tags.map(tag => tag.name.toLowerCase()).join(" ")}">
         <div class="topic-info">
           <span class="topic-title">${t.title}</span>
-          ${t.tags.length ? `<div class="topic-tags">${t.tags.map(tag => `<a class="topic-tag" href="/tags/${tag.slug}">${tag.name}</a>`).join("")}</div>` : ""}
+          <div class="topic-meta">
+            ${t.tags.map(tag => `<a class="topic-tag" href="/tags/${tag.slug}">${tag.name}</a>`).join("")}
+          </div>
         </div>
         <span class="topic-arrow">→</span>
       </a>
