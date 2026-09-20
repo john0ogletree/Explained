@@ -5,22 +5,41 @@ export async function onRequest(context) {
   );
 
   const files = await res.json();
+  const mdFiles = files.filter(f => f.type === "file" && f.name.endsWith(".md"));
 
-  const topics = files
-    .filter(f => f.type === "file" && f.name.endsWith(".md"))
-    .map(f => ({
-      slug: f.name.replace(".md", ""),
-      title: f.name
-        .replace(".md", "")
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, c => c.toUpperCase()),
-    }))
-    .sort((a, b) => a.title.localeCompare(b.title));
+  // Fetch each file's raw content to parse frontmatter tags
+  const topics = await Promise.all(
+    mdFiles.map(async (f) => {
+      const slug = f.name.replace(".md", "");
+      const raw = await fetch(
+        `https://raw.githubusercontent.com/John0ogletree/Explained/main/topics/${f.name}`
+      ).then(r => r.text());
 
-  const listHtml = topics
+      const { tags } = parseFrontmatter(raw);
+
+      return {
+        slug,
+        title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+        tags,
+      };
+    })
+  );
+
+  // Collect all unique tags
+  const allTags = [...new Set(topics.flatMap(t => t.tags))].sort();
+
+  const tagFilterHtml = allTags
+    .map(t => `<button class="tag-pill" data-tag="${t}">${t}</button>`)
+    .join("");
+
+  const topicCardsHtml = topics
+    .sort((a, b) => a.title.localeCompare(b.title))
     .map(t => `
-      <a class="topic-card" href="/topics/${t.slug}">
-        <span class="topic-title">${t.title}</span>
+      <a class="topic-card" href="/topics/${t.slug}" data-tags="${t.tags.join(" ")}">
+        <div class="topic-info">
+          <span class="topic-title">${t.title}</span>
+          ${t.tags.length ? `<div class="topic-tags">${t.tags.map(tag => `<span class="topic-tag">${tag}</span>`).join("")}</div>` : ""}
+        </div>
         <span class="topic-arrow">→</span>
       </a>
     `)
@@ -32,6 +51,7 @@ export async function onRequest(context) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Explained</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <style>
     :root {
       --bg: #0f172a;
@@ -42,7 +62,6 @@ export async function onRequest(context) {
       --muted: #94a3b8;
       --accent: #fcd34d;
       --accent-strong: #f59e0b;
-      --link: #93c5fd;
     }
     * { box-sizing: border-box; }
     body {
@@ -57,7 +76,7 @@ export async function onRequest(context) {
     .wrap { max-width: 720px; margin: 0 auto; }
 
     header {
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
       padding-bottom: 1.5rem;
       border-bottom: 1px solid var(--border);
     }
@@ -74,6 +93,34 @@ export async function onRequest(context) {
       color: var(--muted);
       font-size: 0.95rem;
       margin: 0;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 1.5rem 0;
+    }
+    .tag-pill {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .tag-pill:hover {
+      border-color: var(--accent-strong);
+      color: var(--accent);
+    }
+    .tag-pill.active {
+      background: var(--accent-strong);
+      border-color: var(--accent-strong);
+      color: #1a1a1a;
+      font-weight: 600;
     }
 
     .topics {
@@ -98,7 +145,18 @@ export async function onRequest(context) {
       border-color: var(--accent-strong);
       transform: translateX(4px);
     }
+    .topic-card.hidden { display: none; }
+    .topic-info { display: flex; flex-direction: column; gap: 4px; }
     .topic-title { font-weight: 500; }
+    .topic-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .topic-tag {
+      font-size: 0.65rem;
+      color: var(--accent);
+      background: rgba(245,158,11,0.1);
+      padding: 1px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(245,158,11,0.25);
+    }
     .topic-arrow {
       color: var(--accent);
       font-size: 1.1rem;
@@ -112,6 +170,14 @@ export async function onRequest(context) {
       text-align: center;
       padding: 2rem 0;
     }
+    .no-results {
+      display: none;
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 2rem 0;
+    }
+    .no-results.show { display: block; }
 
     footer {
       margin-top: 3rem;
@@ -130,15 +196,46 @@ export async function onRequest(context) {
       <p class="subtitle">Topics I've broken down and written about.</p>
     </header>
 
-    <div class="topics">
-      ${topics.length ? listHtml : '<p class="empty">No topics yet.</p>'}
+    ${allTags.length ? `<div class="filters">
+      <button class="tag-pill active" data-tag="__all__">all</button>
+      ${tagFilterHtml}
+    </div>` : ""}
+
+    <div class="topics" id="topics-list">
+      ${topics.length ? topicCardsHtml : '<p class="empty">No topics yet.</p>'}
     </div>
+    <p class="no-results" id="no-results">No topics match that tag.</p>
 
     <div id="jao-support" style="margin-top: 2.5rem;"></div>
 
     <footer>Built at the edge · Cloudflare Pages</footer>
   </div>
 
+  <script>
+    (function () {
+      var pills = document.querySelectorAll('.tag-pill');
+      var cards = document.querySelectorAll('.topic-card');
+      var noResults = document.getElementById('no-results');
+
+      pills.forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          var tag = pill.dataset.tag;
+          pills.forEach(function (p) { p.classList.remove('active'); });
+          pill.classList.add('active');
+
+          var visible = 0;
+          cards.forEach(function (card) {
+            var cardTags = (card.dataset.tags || '').split(' ').filter(Boolean);
+            var show = tag === '__all__' || cardTags.indexOf(tag) !== -1;
+            card.classList.toggle('hidden', !show);
+            if (show) visible++;
+          });
+
+          noResults.classList.toggle('show', visible === 0);
+        });
+      });
+    })();
+  </script>
   <script src="https://support.jao.life/support.js"></script>
 </body>
 </html>`;
@@ -146,4 +243,17 @@ export async function onRequest(context) {
   return new Response(html, {
     headers: { "Content-Type": "text/html;charset=UTF-8" },
   });
+}
+
+function parseFrontmatter(md) {
+  const match = md.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
+  if (!match) return { tags: [] };
+
+  const yaml = match[1];
+  const tagLine = yaml.match(/^tags:\s*\[(.*?)\]/m);
+  const tags = tagLine
+    ? tagLine[1].split(",").map(t => t.trim()).filter(Boolean)
+    : [];
+
+  return { tags };
 }
