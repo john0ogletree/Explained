@@ -1,4 +1,12 @@
-export function renderPage({ title, subtitle, tags, body, showHeader = true, showSearch = false }) {
+export function renderPage({
+  title,
+  subtitle,
+  tags,
+  body,
+  showHeader = true,
+  showSearch = false,
+  showComments = false,
+}) {
   const tagsHtml = tags && tags.length
     ? `<div class="page-tags">${tags.map(t => `<a class="page-tag" href="/tags/${t.slug}">${t.name}</a>`).join("")}</div>`
     : "";
@@ -9,12 +17,36 @@ export function renderPage({ title, subtitle, tags, body, showHeader = true, sho
       </div>`
     : "";
 
+  const commentsHtml = showComments
+    ? `<section class="comments-wrap">
+        <h2>Comments</h2>
+        <div id="giscus-container"></div>
+        <script src="https://giscus.app/client.js"
+          data-repo="John0ogletree/Explained"
+          data-repo-id="YOUR_REPO_ID"
+          data-category="Announcements"
+          data-category-id="YOUR_CATEGORY_ID"
+          data-mapping="pathname"
+          data-strict="1"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="bottom"
+          data-theme="dark_dimmed"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+        </script>
+      </section>`
+    : "";
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
+  <link rel="alternate" type="application/rss+xml" title="Explained" href="/feed.xml">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <style>${sharedStyles()}</style>
 </head>
@@ -32,8 +64,9 @@ export function renderPage({ title, subtitle, tags, body, showHeader = true, sho
     ${tagsHtml}
     ${body}
     <p class="no-results" id="no-results">No topics match your search.</p>
+    ${commentsHtml}
     <div id="jao-support" style="margin-top: 2.5rem;"></div>
-    <footer>Built at the edge · Cloudflare Pages</footer>
+    <footer>Built at the edge · Cloudflare Pages · <a href="/feed.xml">RSS</a></footer>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
@@ -167,9 +200,9 @@ function sharedStyles() {
       transform: translateX(4px);
     }
     .topic-card.hidden { display: none; }
-    .topic-info { display: flex; flex-direction: column; gap: 4px; }
+    .topic-info { display: flex; flex-direction: column; gap: 6px; }
     .topic-title { font-weight: 500; }
-    .topic-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .topic-meta { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
     .topic-tag {
       font-size: 0.65rem;
       color: var(--accent);
@@ -227,7 +260,7 @@ function sharedStyles() {
     .no-results { display: none; }
     .no-results.show { display: block; }
 
-    .page-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .page-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
     .page-tag {
       font-size: 0.7rem;
       color: var(--accent);
@@ -239,6 +272,18 @@ function sharedStyles() {
       transition: background 0.15s ease;
     }
     .page-tag:hover { background: rgba(245,158,11,0.2); }
+
+    .page-meta {
+      display: flex;
+      gap: 1rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-meta span::before { content: '· '; margin-right: 4px; }
+    .page-meta span:first-child::before { content: ''; margin: 0; }
 
     article { font-size: 1rem; }
     article h1 {
@@ -266,6 +311,7 @@ function sharedStyles() {
     article em { color: #cbd5e1; }
     article ul, article ol { padding-left: 1.5rem; margin: 0 0 1rem; }
     article li { margin-bottom: 0.35rem; }
+    article ul ul, article ul ol, article ol ul, article ol ol { margin: 0.35rem 0 0; }
 
     article code {
       background: var(--card);
@@ -299,7 +345,6 @@ function sharedStyles() {
     }
     article hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 
-    /* Tables */
     article table {
       width: 100%;
       border-collapse: collapse;
@@ -311,9 +356,7 @@ function sharedStyles() {
       display: block;
       overflow-x: auto;
     }
-    article thead {
-      background: var(--card);
-    }
+    article thead { background: var(--card); }
     article th {
       padding: 10px 14px;
       text-align: left;
@@ -331,6 +374,17 @@ function sharedStyles() {
     article tbody tr:last-child td { border-bottom: none; }
     article tbody tr:hover { background: rgba(38,52,73,0.4); }
 
+    .comments-wrap {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .comments-wrap h2 {
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin: 0 0 1rem;
+    }
+
     footer {
       margin-top: 3rem;
       padding-top: 1.5rem;
@@ -339,5 +393,7 @@ function sharedStyles() {
       color: var(--muted);
       font-size: 0.8rem;
     }
+    footer a { color: var(--link); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
   `;
 }
