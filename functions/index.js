@@ -17,7 +17,6 @@ export async function onRequest(context) {
   const topics = await getAllTopics(token);
   const allTags = [...new Set(topics.flatMap(t => t.tags.map(tag => tag.slug)))].sort();
 
-  // Build tag slug → display name map
   const tagNames = {};
   topics.forEach(t => t.tags.forEach(tag => { tagNames[tag.slug] = tag.name; }));
 
@@ -25,7 +24,7 @@ export async function onRequest(context) {
     .map(slug => `<a class="tag-pill" href="/tags/${slug}">${tagNames[slug]}</a>`)
     .join("");
 
-  const { items, page: currentPage, totalPages, total } = paginate(topics, page);
+  const { items, page: currentPage, totalPages } = paginate(topics, page);
 
   const body = `
     ${allTags.length ? `<div class="filters">${tagPillsHtml}</div>` : ""}
