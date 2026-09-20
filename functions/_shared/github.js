@@ -1,7 +1,11 @@
 import { parseFrontmatter } from "./markdown.js";
+import { withCache } from "./utils.js";
 
 const REPO = "John0ogletree/Explained";
 const BRANCH = "main";
+
+const METADATA_CACHE_KEY = "https://internal.explained/__cache/topics-metadata";
+const METADATA_TTL = 300; // seconds
 
 export function githubHeaders(token, accept = "application/vnd.github+json") {
   const headers = {
@@ -31,7 +35,10 @@ export async function fetchRawMarkdown(filename, token) {
   return res.text();
 }
 
-export async function getAllTopics(token) {
+/**
+ * Uncached version: hits GitHub for every topic file.
+ */
+async function fetchAllTopicsFromGitHub(token) {
   const mdFiles = await listTopics(token);
 
   const topics = await Promise.all(
@@ -48,6 +55,13 @@ export async function getAllTopics(token) {
   );
 
   return topics.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/**
+ * Cached version: only hits GitHub once per TTL.
+ */
+export async function getAllTopics(token) {
+  return withCache(METADATA_CACHE_KEY, METADATA_TTL, () => fetchAllTopicsFromGitHub(token));
 }
 
 export function renderTopicCards(topics) {
