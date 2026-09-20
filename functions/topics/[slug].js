@@ -1,9 +1,22 @@
 export async function onRequest(context) {
-  const { params } = context;
+  const { params, env, request } = context;
   const slug = params.slug;
+  const token = env.GITHUB_TOKEN;
 
-  const rawUrl = `https://raw.githubusercontent.com/John0ogletree/Explained/main/topics/${slug}.md`;
-  const res = await fetch(rawUrl);
+  // --- Edge cache check ---
+  const cache = caches.default;
+  const cacheKey = new Request(new URL(`/__cache/topic/${slug}`, request.url).toString(), { method: "GET" });
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
+  const headers = {
+    "User-Agent": "cf-worker",
+    "Accept": "application/vnd.github.raw",
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const apiUrl = `https://api.github.com/repos/John0ogletree/Explained/contents/topics/${slug}.md`;
+  const res = await fetch(apiUrl, { headers });
 
   if (!res.ok) {
     return new Response("Topic not found", { status: 404 });
@@ -173,9 +186,15 @@ export async function onRequest(context) {
 </body>
 </html>`;
 
-  return new Response(html, {
-    headers: { "Content-Type": "text/html;charset=UTF-8" },
+  const response = new Response(html, {
+    headers: {
+      "Content-Type": "text/html;charset=UTF-8",
+      "Cache-Control": "public, max-age=300",
+    },
   });
+
+  context.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
 }
 
 function parseFrontmatter(md) {
@@ -194,7 +213,6 @@ function parseFrontmatter(md) {
 function renderMarkdown(md) {
   md = md.replace(/^#\s+(.+)$/m, "");
 
-  // Code fences with language
   md = md.replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => {
     const language = lang ? ` class="language-${lang}"` : "";
     const escaped = code
