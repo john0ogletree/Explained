@@ -1,4 +1,4 @@
-import { slugify } from "./utils.js";
+import { slugify, slugifyHeading } from "./utils.js";
 
 export function parseFrontmatter(md) {
   const match = md.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
@@ -15,9 +15,14 @@ export function parseFrontmatter(md) {
   return { tags: tagObjects, body: md.slice(match[0].length) };
 }
 
+/**
+ * Returns { html, toc } where toc = [{ level: 2, id, text }, ...]
+ */
 export function renderMarkdown(md) {
   // Strip leading H1 (page already has one)
   md = md.replace(/^#\s+(.+)$/m, "");
+
+  const toc = [];
 
   // --- 1. Code fences first ---
   const codeBlocks = [];
@@ -38,31 +43,49 @@ export function renderMarkdown(md) {
     (tableBlock) => renderTable(tableBlock)
   );
 
-  // --- 3. Headings, blockquotes, hr, and inline styles (per-line, pre-list) ---
+  // --- 3. Headings (collect TOC + add anchors) ---
+  md = md.replace(/^(##|###)\s+(.+)$/gm, (_, hashes, text) => {
+    const level = hashes.length;
+    const id = slugifyHeading(text);
+    toc.push({ level, id, text });
+    return `<h${level} id="${id}">${text}<a class="anchor" href="#${id}" aria-label="Anchor">#</a></h${level}>`;
+  });
+
+  // --- 4. Other block elements ---
   md = md
-    .replace(/^### (.*$)/gim, "<h3>$1</h3>")
-    .replace(/^## (.*$)/gim, "<h2>$1</h2>")
-    .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+    .replace(/^#\s+(.*$)/gim, "<h1>$1</h1>")
     .replace(/^> (.*$)/gim, "<blockquote>$1</blockquote>")
     .replace(/^---$/gim, "<hr>");
 
-  // --- 4. Lists (nested-aware) ---
+  // --- 5. Lists (nested-aware) ---
   md = renderLists(md);
 
-  // --- 5. Inline styles for remaining text ---
+  // --- 6. Inline styles for remaining text ---
   md = md
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
 
-  // --- 6. Paragraphs (skip block-level tags and placeholders) ---
+  // --- 7. Paragraphs ---
   md = wrapParagraphs(md);
 
-  // --- 7. Restore code blocks ---
+  // --- 8. Restore code blocks ---
   md = md.replace(/\u0000CODEBLOCK(\d+)\u0000/g, (_, i) => codeBlocks[Number(i)]);
 
-  return md;
+  return { html: md, toc };
+}
+
+export function renderTOC(toc) {
+  const items = toc.filter(t => t.level === 2);
+  if (items.length < 2) return "";
+
+  return `<nav class="toc">
+    <div class="toc-title">On this page</div>
+    <ul>
+      ${items.map(t => `<li><a href="#${t.id}">${t.text}</a></li>`).join("")}
+    </ul>
+  </nav>`;
 }
 
 function renderLists(md) {
@@ -113,7 +136,7 @@ function renderLists(md) {
 }
 
 function wrapParagraphs(md) {
-  const blockTags = /^<(h[1-6]|ul|ol|li|pre|blockquote|hr|table|thead|tbody|tr|th|td)/i;
+  const blockTags = /^<(h[1-6]|ul|ol|li|pre|blockquote|hr|table|thead|tbody|tr|th|td|nav)/i;
 
   const lines = md.split("\n");
   const out = [];
