@@ -55,3 +55,30 @@ export function renderPagination(basePath, page, totalPages) {
 
   return `<nav class="pagination">${parts.join("")}</nav>`;
 }
+
+/**
+ * Wrap a "fetch fresh data" function with Cloudflare's edge cache.
+ * Returns whatever the fetcher returns.
+ */
+export async function withCache(cacheKey, ttlSeconds, fetcher) {
+  const cache = caches.default;
+  const key = new Request(cacheKey);
+
+  const hit = await cache.match(key);
+  if (hit) {
+    return await hit.json();
+  }
+
+  const data = await fetcher();
+
+  const response = new Response(JSON.stringify(data), {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": `public, max-age=${ttlSeconds}`,
+    },
+  });
+
+  await cache.put(key, response);
+
+  return data;
+}
