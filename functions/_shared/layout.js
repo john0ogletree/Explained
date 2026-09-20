@@ -6,6 +6,7 @@ export function renderPage({
   showHeader = true,
   showSearch = false,
   showComments = false,
+  showCommentCounts = false,
 }) {
   const tagsHtml = tags && tags.length
     ? `<div class="page-tags">${tags.map(t => `<a class="page-tag" href="/tags/${t.slug}">${t.name}</a>`).join("")}</div>`
@@ -29,7 +30,7 @@ export function renderPage({
           data-mapping="pathname"
           data-strict="0"
           data-reactions-enabled="1"
-          data-emit-metadata="0"
+          data-emit-metadata="1"
           data-input-position="top"
           data-theme="noborder_gray"
           data-lang="en"
@@ -38,6 +39,56 @@ export function renderPage({
           async>
         </script>
       </section>`
+    : "";
+
+  const commentCountScript = showCommentCounts
+    ? `<script>
+        (function () {
+          var counts = {};
+          var listeners = [];
+          window.addEventListener('message', function (event) {
+            if (event.origin !== 'https://giscus.app') return;
+            var data = event.data;
+            if (!data || !data.giscus) return;
+
+            // Map discussion metadata back to a slug via pathname
+            var pathname = data.giscus.discussion || '';
+            var match = /\\/topics\\/([^/?#]+)/.exec(pathname);
+            if (!match) return;
+            var slug = match[1];
+
+            if (data.giscus.totalCommentCount !== undefined) {
+              counts[slug] = data.giscus.totalCommentCount;
+              listeners.forEach(function (fn) { fn(slug, counts[slug]); });
+            }
+          });
+
+          function renderCount(el, slug, count) {
+            if (!count) { el.textContent = ''; return; }
+            el.textContent = '💬 ' + count;
+            el.title = count + ' comment' + (count === 1 ? '' : 's');
+          }
+
+          function check() {
+            document.querySelectorAll('.comment-count').forEach(function (el) {
+              var slug = el.dataset.slug;
+              if (counts[slug] !== undefined) renderCount(el, slug, counts[slug]);
+            });
+          }
+
+          listeners.push(check);
+
+          // Request metadata for each topic card via hidden Giscus iframes
+          document.querySelectorAll('.comment-count').forEach(function (el) {
+            var slug = el.dataset.slug;
+            var iframe = document.createElement('iframe');
+            iframe.src = 'https://giscus.app/en/iframe?src=' + encodeURIComponent(location.origin + '/topics/' + slug) + '&repo=John0ogletree%2FExplained&repoId=R_kgDOUi66wA&category=General&categoryId=DIC_kwDOUi66wM4DGC-D&mapping=pathname&strict=0&reactionsEnabled=1&emitMetadata=1&inputPosition=top&theme=noborder_gray&lang=en&loading=lazy';
+            iframe.style.display = 'none';
+            iframe.loading = 'lazy';
+            document.body.appendChild(iframe);
+          });
+        })();
+      </script>`
     : "";
 
   return `<!DOCTYPE html>
@@ -89,6 +140,7 @@ export function renderPage({
       });
     })();
   </script>
+  ${commentCountScript}
   <script src="https://support.jao.life/support.js"></script>
 </body>
 </html>`;
@@ -200,7 +252,7 @@ function sharedStyles() {
       transform: translateX(4px);
     }
     .topic-card.hidden { display: none; }
-    .topic-info { display: flex; flex-direction: column; gap: 6px; }
+    .topic-info { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .topic-title { font-weight: 500; }
     .topic-meta { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
     .topic-tag {
@@ -214,6 +266,12 @@ function sharedStyles() {
       transition: background 0.15s ease;
     }
     .topic-tag:hover { background: rgba(245,158,11,0.2); }
+    .topic-right { display: flex; align-items: center; gap: 8px; }
+    .comment-count {
+      font-size: 0.7rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
     .topic-arrow {
       color: var(--accent);
       font-size: 1.1rem;
@@ -285,6 +343,32 @@ function sharedStyles() {
     .page-meta span::before { content: '· '; margin-right: 4px; }
     .page-meta span:first-child::before { content: ''; margin: 0; }
 
+    /* Table of contents */
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+    .toc-title {
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.6rem;
+    }
+    .toc ul { list-style: none; padding: 0; margin: 0; }
+    .toc li { margin-bottom: 0.3rem; }
+    .toc a {
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    .toc a:hover { color: var(--accent); }
+
     article { font-size: 1rem; }
     article h1 {
       font-size: 2rem;
@@ -302,8 +386,29 @@ function sharedStyles() {
       margin-bottom: 0.75rem;
       padding-bottom: 0.4rem;
       border-bottom: 1px solid var(--border);
+      scroll-margin-top: 1rem;
     }
-    article h3 { font-size: 1.1rem; color: var(--accent); margin-top: 1.75rem; margin-bottom: 0.5rem; }
+    article h3 {
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-top: 1.75rem;
+      margin-bottom: 0.5rem;
+      scroll-margin-top: 1rem;
+    }
+    article h2 .anchor,
+    article h3 .anchor {
+      opacity: 0;
+      margin-left: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 400;
+      transition: opacity 0.15s ease;
+    }
+    article h2:hover .anchor,
+    article h3:hover .anchor { opacity: 1; }
+    article h2 .anchor:hover,
+    article h3 .anchor:hover { color: var(--accent); }
+
     article p { margin: 0 0 1rem; }
     article a { color: var(--link); text-decoration: none; }
     article a:hover { text-decoration: underline; }
@@ -373,6 +478,46 @@ function sharedStyles() {
     }
     article tbody tr:last-child td { border-bottom: none; }
     article tbody tr:hover { background: rgba(38,52,73,0.4); }
+
+    /* Prev / Next */
+    .topic-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .topic-nav a {
+      flex: 1;
+      padding: 12px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .topic-nav a:hover {
+      border-color: var(--accent-strong);
+      transform: translateY(-2px);
+    }
+    .topic-nav .label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .topic-nav .name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+    .topic-nav .next { text-align: right; margin-left: auto; }
+    .topic-nav .spacer { flex: 1; }
 
     .comments-wrap {
       margin-top: 3rem;
