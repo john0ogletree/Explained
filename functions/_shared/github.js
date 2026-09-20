@@ -75,14 +75,17 @@ export async function getAllTopics(token) {
 export function renderTopicCards(topics) {
   return topics
     .map(t => `
-      <a class="topic-card" href="/topics/${t.slug}" data-search="${t.title.toLowerCase()} ${t.tags.map(tag => tag.name.toLowerCase()).join(" ")}">
+      <a class="topic-card" href="/topics/${t.slug}" data-search="${t.title.toLowerCase()} ${t.tags.map(tag => tag.name.toLowerCase()).join(" ")}" data-slug="${t.slug}">
         <div class="topic-info">
           <span class="topic-title">${t.title}</span>
           <div class="topic-meta">
             ${t.tags.map(tag => `<a class="topic-tag" href="/tags/${tag.slug}">${tag.name}</a>`).join("")}
           </div>
         </div>
-        <span class="topic-arrow">→</span>
+        <div class="topic-right">
+          <span class="comment-count" data-slug="${t.slug}"></span>
+          <span class="topic-arrow">→</span>
+        </div>
       </a>
     `)
     .join("");
