@@ -7,7 +7,6 @@ export async function onRequest(context) {
   const slug = params.slug;
   const token = env.GITHUB_TOKEN;
 
-  // --- Edge cache ---
   const cache = caches.default;
   const cacheKey = new Request(new URL(`/__cache/topic/${slug}`, request.url).toString());
   const cached = await cache.match(cacheKey);
