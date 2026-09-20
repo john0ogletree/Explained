@@ -1,8 +1,7 @@
 export async function onRequest(context) {
-  const { params, env, request } = context;
+  const { params } = context;
   const slug = params.slug;
 
-  // Fetch the raw content file from GitHub
   const rawUrl = `https://raw.githubusercontent.com/John0ogletree/Explained/main/topics/${slug}.md`;
   const res = await fetch(rawUrl);
 
@@ -13,7 +12,9 @@ export async function onRequest(context) {
   const raw = await res.text();
   const bodyHtml = renderMarkdown(raw);
 
-  const title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  const title = slug
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -22,27 +23,136 @@ export async function onRequest(context) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} — Explained</title>
   <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      max-width: 720px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      line-height: 1.7;
-      color: #e2e8f0;
-      background: #0f172a;
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #fcd34d;
+      --accent-strong: #f59e0b;
+      --link: #93c5fd;
+      --code-bg: #1e293b;
     }
-    a { color: #93c5fd; }
-    pre { background: #1e293b; padding: 1rem; border-radius: 8px; overflow-x: auto; }
-    code { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-    h1, h2, h3 { color: #fcd34d; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 3rem 1.5rem 6rem;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.15s ease;
+    }
+    .back:hover { color: var(--accent); }
+
+    article {
+      font-size: 1rem;
+    }
+    article h1 {
+      font-size: 2rem;
+      margin: 0 0 1rem;
+      background: linear-gradient(135deg, #fcd34d, #f59e0b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+    article h2 {
+      font-size: 1.35rem;
+      color: var(--accent);
+      margin-top: 2.2rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    article h3 {
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-top: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+    article p { margin: 0 0 1rem; }
+    article a { color: var(--link); text-decoration: none; }
+    article a:hover { text-decoration: underline; }
+    article strong { color: #fff; }
+    article em { color: #cbd5e1; }
+
+    article ul, article ol {
+      padding-left: 1.5rem;
+      margin: 0 0 1rem;
+    }
+    article li { margin-bottom: 0.35rem; }
+
+    article code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #fca5a5;
+    }
+    article pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 0 0 1.25rem;
+    }
+    article pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    article blockquote {
+      border-left: 3px solid var(--accent-strong);
+      padding-left: 1rem;
+      margin: 0 0 1rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    article hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
   </style>
 </head>
 <body>
-  <a href="/">← Back to topics</a>
-  <h1>${title}</h1>
-  <article>${bodyHtml}</article>
+  <div class="wrap">
+    <a class="back" href="/">← Back to topics</a>
 
-  <div id="jao-support"></div>
+    <article>${bodyHtml}</article>
+
+    <div id="jao-support" style="margin-top: 2.5rem;"></div>
+
+    <footer>Built at the edge · Cloudflare Pages</footer>
+  </div>
+
   <script src="https://support.jao.life/support.js"></script>
 </body>
 </html>`;
@@ -52,16 +162,23 @@ export async function onRequest(context) {
   });
 }
 
-// Tiny markdown renderer — swap for a real one if you want
 function renderMarkdown(md) {
+  // Strip out the leading H1 so we don't duplicate with the page heading
+  md = md.replace(/^#\s+(.+)$/m, "");
+
   return md
     .replace(/^### (.*$)/gim, "<h3>$1</h3>")
     .replace(/^## (.*$)/gim, "<h2>$1</h2>")
     .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+    .replace(/^> (.*$)/gim, "<blockquote>$1</blockquote>")
+    .replace(/^---$/gim, "<hr>")
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+    .replace(/^\s*[-*] (.*$)/gim, "<li>$1</li>")
+    .replace(/(<li>.*<\/li>)/gim, "<ul>$1</ul>")
+    .replace(/<\/ul>\s*<ul>/g, "")
     .replace(/\n\n/g, "</p><p>")
     .replace(/^/, "<p>")
     .replace(/$/, "</p>");
