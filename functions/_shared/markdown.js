@@ -19,7 +19,7 @@ export function renderMarkdown(md) {
   // Strip leading H1 (page already has one)
   md = md.replace(/^#\s+(.+)$/m, "");
 
-  // --- 1. Code fences first (protect from other transformations) ---
+  // --- 1. Code fences first ---
   const codeBlocks = [];
   md = md.replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => {
     const language = lang ? ` class="language-${lang}"` : "";
@@ -38,28 +38,110 @@ export function renderMarkdown(md) {
     (tableBlock) => renderTable(tableBlock)
   );
 
-  // --- 3. Everything else ---
+  // --- 3. Headings, blockquotes, hr, and inline styles (per-line, pre-list) ---
   md = md
     .replace(/^### (.*$)/gim, "<h3>$1</h3>")
     .replace(/^## (.*$)/gim, "<h2>$1</h2>")
     .replace(/^# (.*$)/gim, "<h1>$1</h1>")
     .replace(/^> (.*$)/gim, "<blockquote>$1</blockquote>")
-    .replace(/^---$/gim, "<hr>")
+    .replace(/^---$/gim, "<hr>");
+
+  // --- 4. Lists (nested-aware) ---
+  md = renderLists(md);
+
+  // --- 5. Inline styles for remaining text ---
+  md = md
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
-    .replace(/^\s*[-*] (.*$)/gim, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>)/gim, "<ul>$1</ul>")
-    .replace(/<\/ul>\s*<ul>/g, "")
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/^/, "<p>")
-    .replace(/$/, "</p>");
+    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
 
-  // --- 4. Restore code blocks ---
+  // --- 6. Paragraphs (skip block-level tags and placeholders) ---
+  md = wrapParagraphs(md);
+
+  // --- 7. Restore code blocks ---
   md = md.replace(/\u0000CODEBLOCK(\d+)\u0000/g, (_, i) => codeBlocks[Number(i)]);
 
   return md;
+}
+
+function renderLists(md) {
+  const lines = md.split("\n");
+  const out = [];
+  const stack = [];
+
+  const indentOf = (line) => line.match(/^(\s*)/)[1].length;
+  const listMatch = (line) => line.match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+
+  const closeList = () => {
+    while (stack.length) {
+      out.push(stack.pop() === "ol" ? "</ol>" : "</ul>");
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const m = listMatch(line);
+
+    if (!m) {
+      closeList();
+      out.push(line);
+      continue;
+    }
+
+    const indent = m[1].length;
+    const marker = m[2];
+    const type = /^\d/.test(marker) ? "ol" : "ul";
+
+    if (!stack.length) {
+      out.push(type === "ol" ? "<ol>" : "<ul>");
+      stack.push(type);
+    } else if (indent > indentOf(lines[i - 1] || "")) {
+      out.push(type === "ol" ? "<ol>" : "<ul>");
+      stack.push(type);
+    } else if (stack.length > 1 && indent < indentOf(lines[i - 1] || "")) {
+      while (stack.length > 1) {
+        out.push(stack.pop() === "ol" ? "</ol>" : "</ul>");
+      }
+    }
+
+    out.push(`<li>${m[3]}</li>`);
+  }
+
+  closeList();
+  return out.join("\n");
+}
+
+function wrapParagraphs(md) {
+  const blockTags = /^<(h[1-6]|ul|ol|li|pre|blockquote|hr|table|thead|tbody|tr|th|td)/i;
+
+  const lines = md.split("\n");
+  const out = [];
+  let buffer = [];
+
+  const flush = () => {
+    if (!buffer.length) return;
+    const text = buffer.join(" ").trim();
+    if (text) out.push(`<p>${text}</p>`);
+    buffer = [];
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      flush();
+      continue;
+    }
+    if (blockTags.test(trimmed) || /^<\//.test(trimmed) || trimmed.includes("\u0000CODEBLOCK")) {
+      flush();
+      out.push(trimmed);
+      continue;
+    }
+    buffer.push(trimmed);
+  }
+
+  flush();
+  return out.join("\n");
 }
 
 function renderTable(block) {
@@ -100,7 +182,6 @@ function renderTable(block) {
   return `<table>${thead}${tbody}</table>`;
 }
 
-// Apply inline formatting to table cells (bold, italic, code, links)
 function inline(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
