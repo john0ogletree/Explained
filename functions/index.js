@@ -1,33 +1,45 @@
 import { renderPage } from "./_shared/layout.js";
 import { getAllTopics, renderTopicCards } from "./_shared/github.js";
+import { paginate, renderPagination } from "./_shared/utils.js";
 
 export async function onRequest(context) {
   const { env, request } = context;
   const token = env.GITHUB_TOKEN;
 
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+
   const cache = caches.default;
-  const cacheKey = new Request(new URL("/__cache/homepage", request.url).toString());
+  const cacheKey = new Request(new URL(`/__cache/homepage/${page}`, request.url).toString());
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
   const topics = await getAllTopics(token);
-  const allTags = [...new Set(topics.flatMap(t => t.tags))].sort();
+  const allTags = [...new Set(topics.flatMap(t => t.tags.map(tag => tag.slug)))].sort();
+
+  // Build tag slug → display name map
+  const tagNames = {};
+  topics.forEach(t => t.tags.forEach(tag => { tagNames[tag.slug] = tag.name; }));
 
   const tagPillsHtml = allTags
-    .map(t => `<a class="tag-pill" href="/tags/${t}">${t}</a>`)
+    .map(slug => `<a class="tag-pill" href="/tags/${slug}">${tagNames[slug]}</a>`)
     .join("");
+
+  const { items, page: currentPage, totalPages, total } = paginate(topics, page);
 
   const body = `
     ${allTags.length ? `<div class="filters">${tagPillsHtml}</div>` : ""}
     <div class="topics">
-      ${topics.length ? renderTopicCards(topics) : '<p class="empty">No topics yet.</p>'}
+      ${items.length ? renderTopicCards(items) : '<p class="empty">No topics yet.</p>'}
     </div>
+    ${renderPagination("/", currentPage, totalPages)}
   `;
 
   const html = renderPage({
     title: "Explained",
     subtitle: "Topics I've broken down and written about.",
     body,
+    showSearch: true,
   });
 
   const response = new Response(html, {
