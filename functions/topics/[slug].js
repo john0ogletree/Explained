@@ -10,11 +10,16 @@ export async function onRequest(context) {
   }
 
   const raw = await res.text();
-  const bodyHtml = renderMarkdown(raw);
+  const { tags, body } = parseFrontmatter(raw);
+  const bodyHtml = renderMarkdown(body);
 
   const title = slug
     .replace(/-/g, " ")
     .replace(/\b\w/g, c => c.toUpperCase());
+
+  const tagsHtml = tags.length
+    ? `<div class="page-tags">${tags.map(t => `<span class="page-tag">${t}</span>`).join("")}</div>`
+    : "";
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -22,6 +27,7 @@ export async function onRequest(context) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} — Explained</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <style>
     :root {
       --bg: #0f172a;
@@ -32,7 +38,6 @@ export async function onRequest(context) {
       --accent: #fcd34d;
       --accent-strong: #f59e0b;
       --link: #93c5fd;
-      --code-bg: #1e293b;
     }
     * { box-sizing: border-box; }
     body {
@@ -58,9 +63,22 @@ export async function onRequest(context) {
     }
     .back:hover { color: var(--accent); }
 
-    article {
-      font-size: 1rem;
+    .page-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
     }
+    .page-tag {
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: rgba(245,158,11,0.1);
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(245,158,11,0.25);
+    }
+
+    article { font-size: 1rem; }
     article h1 {
       font-size: 2rem;
       margin: 0 0 1rem;
@@ -89,15 +107,11 @@ export async function onRequest(context) {
     article a:hover { text-decoration: underline; }
     article strong { color: #fff; }
     article em { color: #cbd5e1; }
-
-    article ul, article ol {
-      padding-left: 1.5rem;
-      margin: 0 0 1rem;
-    }
+    article ul, article ol { padding-left: 1.5rem; margin: 0 0 1rem; }
     article li { margin-bottom: 0.35rem; }
 
     article code {
-      background: var(--code-bg);
+      background: var(--card);
       padding: 2px 6px;
       border-radius: 4px;
       font-size: 0.88em;
@@ -105,7 +119,7 @@ export async function onRequest(context) {
       color: #fca5a5;
     }
     article pre {
-      background: var(--code-bg);
+      background: #282c34;
       border: 1px solid var(--border);
       padding: 1rem;
       border-radius: 10px;
@@ -115,7 +129,7 @@ export async function onRequest(context) {
     article pre code {
       background: none;
       padding: 0;
-      color: var(--text);
+      color: inherit;
       font-size: 0.85rem;
       line-height: 1.6;
     }
@@ -145,7 +159,7 @@ export async function onRequest(context) {
 <body>
   <div class="wrap">
     <a class="back" href="/">← Back to topics</a>
-
+    ${tagsHtml}
     <article>${bodyHtml}</article>
 
     <div id="jao-support" style="margin-top: 2.5rem;"></div>
@@ -153,6 +167,8 @@ export async function onRequest(context) {
     <footer>Built at the edge · Cloudflare Pages</footer>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
   <script src="https://support.jao.life/support.js"></script>
 </body>
 </html>`;
@@ -162,9 +178,31 @@ export async function onRequest(context) {
   });
 }
 
+function parseFrontmatter(md) {
+  const match = md.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
+  if (!match) return { tags: [], body: md };
+
+  const yaml = match[1];
+  const tagLine = yaml.match(/^tags:\s*\[(.*?)\]/m);
+  const tags = tagLine
+    ? tagLine[1].split(",").map(t => t.trim()).filter(Boolean)
+    : [];
+
+  return { tags, body: md.slice(match[0].length) };
+}
+
 function renderMarkdown(md) {
-  // Strip out the leading H1 so we don't duplicate with the page heading
   md = md.replace(/^#\s+(.+)$/m, "");
+
+  // Code fences with language
+  md = md.replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => {
+    const language = lang ? ` class="language-${lang}"` : "";
+    const escaped = code
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    return `<pre><code${language}>${escaped}</code></pre>`;
+  });
 
   return md
     .replace(/^### (.*$)/gim, "<h3>$1</h3>")
