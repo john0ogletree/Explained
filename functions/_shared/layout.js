@@ -1,6 +1,12 @@
-export function renderPage({ title, subtitle, tags, body, showHeader = true }) {
+export function renderPage({ title, subtitle, tags, body, showHeader = true, showSearch = false }) {
   const tagsHtml = tags && tags.length
-    ? `<div class="page-tags">${tags.map(t => `<span class="page-tag">${t}</span>`).join("")}</div>`
+    ? `<div class="page-tags">${tags.map(t => `<a class="page-tag" href="/tags/${t.slug}">${t.name}</a>`).join("")}</div>`
+    : "";
+
+  const searchHtml = showSearch
+    ? `<div class="search-wrap">
+        <input type="search" id="topic-search" placeholder="Search topics…" autocomplete="off">
+      </div>`
     : "";
 
   return `<!DOCTYPE html>
@@ -22,13 +28,34 @@ export function renderPage({ title, subtitle, tags, body, showHeader = true }) {
     ` : `
       <a class="back" href="/">← Back to topics</a>
     `}
+    ${searchHtml}
     ${tagsHtml}
     ${body}
+    <p class="no-results" id="no-results">No topics match your search.</p>
     <div id="jao-support" style="margin-top: 2.5rem;"></div>
     <footer>Built at the edge · Cloudflare Pages</footer>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <script>
+    (function () {
+      var input = document.getElementById('topic-search');
+      var noResults = document.getElementById('no-results');
+      if (!input) return;
+      var cards = Array.prototype.slice.call(document.querySelectorAll('.topic-card'));
+      input.addEventListener('input', function () {
+        var q = input.value.toLowerCase().trim();
+        var visible = 0;
+        cards.forEach(function (card) {
+          var haystack = card.dataset.search || '';
+          var match = !q || haystack.indexOf(q) !== -1;
+          card.classList.toggle('hidden', !match);
+          if (match) visible++;
+        });
+        if (noResults) noResults.classList.toggle('show', visible === 0);
+      });
+    })();
+  </script>
   <script src="https://support.jao.life/support.js"></script>
 </body>
 </html>`;
@@ -59,11 +86,7 @@ function sharedStyles() {
     }
     .wrap { max-width: 720px; margin: 0 auto; }
 
-    header {
-      margin-bottom: 2rem;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border);
-    }
+    header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
     h1 {
       margin: 0 0 0.5rem;
       font-size: 2rem;
@@ -88,6 +111,26 @@ function sharedStyles() {
     }
     .back:hover { color: var(--accent); }
 
+    /* Search */
+    .search-wrap { margin: 1.5rem 0 1rem; }
+    #topic-search {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.15s ease;
+    }
+    #topic-search:focus {
+      outline: none;
+      border-color: var(--accent-strong);
+    }
+    #topic-search::placeholder { color: var(--muted); }
+
+    /* Filters */
     .filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1.5rem 0; }
     .tag-pill {
       background: transparent;
@@ -110,6 +153,7 @@ function sharedStyles() {
       font-weight: 600;
     }
 
+    /* Topic list */
     .topics { display: flex; flex-direction: column; gap: 0.6rem; }
     .topic-card {
       display: flex;
@@ -139,13 +183,47 @@ function sharedStyles() {
       padding: 1px 8px;
       border-radius: 999px;
       border: 1px solid rgba(245,158,11,0.25);
+      text-decoration: none;
+      transition: background 0.15s ease;
     }
+    .topic-tag:hover { background: rgba(245,158,11,0.2); }
     .topic-arrow {
       color: var(--accent);
       font-size: 1.1rem;
       transition: transform 0.15s ease;
     }
     .topic-card:hover .topic-arrow { transform: translateX(4px); }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 2rem 0 0;
+      flex-wrap: wrap;
+    }
+    .page-link {
+      display: inline-block;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+    }
+    .page-link:hover { border-color: var(--accent-strong); color: var(--accent); }
+    .page-link.active {
+      background: var(--accent-strong);
+      border-color: var(--accent-strong);
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+    .page-link.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
 
     .empty, .no-results {
       color: var(--muted);
@@ -165,9 +243,11 @@ function sharedStyles() {
       border-radius: 999px;
       border: 1px solid rgba(245,158,11,0.25);
       text-decoration: none;
+      transition: background 0.15s ease;
     }
     .page-tag:hover { background: rgba(245,158,11,0.2); }
 
+    /* Article */
     article { font-size: 1rem; }
     article h1 {
       font-size: 2rem;
