@@ -11,6 +11,22 @@ export function unslugify(slug) {
   return slug.replace(/-/g, " ");
 }
 
+export function readingTime(text) {
+  const words = text.trim().split(/\s+/).length;
+  const minutes = Math.max(1, Math.round(words / 200));
+  return `${minutes} min read`;
+}
+
+export function formatDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export const PAGE_SIZE = 10;
 
 export function paginate(items, page, pageSize = PAGE_SIZE) {
@@ -56,10 +72,6 @@ export function renderPagination(basePath, page, totalPages) {
   return `<nav class="pagination">${parts.join("")}</nav>`;
 }
 
-/**
- * Wrap a "fetch fresh data" function with Cloudflare's edge cache.
- * Returns whatever the fetcher returns.
- */
 export async function withCache(cacheKey, ttlSeconds, fetcher) {
   const cache = caches.default;
   const key = new Request(cacheKey);
@@ -81,4 +93,13 @@ export async function withCache(cacheKey, ttlSeconds, fetcher) {
   await cache.put(key, response);
 
   return data;
+}
+
+export function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
