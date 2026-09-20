@@ -7,6 +7,16 @@ export function slugify(str) {
     .replace(/-+/g, "-");
 }
 
+export function slugifyHeading(str) {
+  return String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 export function unslugify(slug) {
   return slug.replace(/-/g, " ");
 }
