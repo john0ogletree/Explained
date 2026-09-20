@@ -1,13 +1,31 @@
 export async function onRequest(context) {
+  const { env, request } = context;
+  const token = env.GITHUB_TOKEN;
+
+  // --- Edge cache check ---
+  const cache = caches.default;
+  const cacheKey = new Request(new URL("/__cache/homepage", request.url).toString(), { method: "GET" });
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
+  const headers = {
+    "User-Agent": "cf-worker",
+    "Accept": "application/vnd.github+json",
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
   const res = await fetch(
     "https://api.github.com/repos/John0ogletree/Explained/contents/topics",
-    { headers: { "User-Agent": "cf-worker" } }
+    { headers }
   );
+
+  if (!res.ok) {
+    return new Response(`GitHub API error: ${res.status}`, { status: 500 });
+  }
 
   const files = await res.json();
   const mdFiles = files.filter(f => f.type === "file" && f.name.endsWith(".md"));
 
-  // Fetch each file's raw content to parse frontmatter tags
   const topics = await Promise.all(
     mdFiles.map(async (f) => {
       const slug = f.name.replace(".md", "");
@@ -25,7 +43,6 @@ export async function onRequest(context) {
     })
   );
 
-  // Collect all unique tags
   const allTags = [...new Set(topics.flatMap(t => t.tags))].sort();
 
   const tagFilterHtml = allTags
@@ -240,9 +257,15 @@ export async function onRequest(context) {
 </body>
 </html>`;
 
-  return new Response(html, {
-    headers: { "Content-Type": "text/html;charset=UTF-8" },
+  const response = new Response(html, {
+    headers: {
+      "Content-Type": "text/html;charset=UTF-8",
+      "Cache-Control": "public, max-age=300",
+    },
   });
+
+  context.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
 }
 
 function parseFrontmatter(md) {
