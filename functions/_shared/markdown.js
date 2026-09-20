@@ -1,3 +1,5 @@
+import { slugify } from "./utils.js";
+
 export function parseFrontmatter(md) {
   const match = md.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
   if (!match) return { tags: [], body: md };
@@ -8,7 +10,10 @@ export function parseFrontmatter(md) {
     ? tagLine[1].split(",").map(t => t.trim()).filter(Boolean)
     : [];
 
-  return { tags, body: md.slice(match[0].length) };
+  // Keep the display form and slug form
+  const tagObjects = tags.map(t => ({ name: t, slug: slugify(t) }));
+
+  return { tags: tagObjects, body: md.slice(match[0].length) };
 }
 
 export function renderMarkdown(md) {
