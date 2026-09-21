@@ -21,6 +21,18 @@ export function renderPage({
   const commentsHtml = showComments
     ? `<section class="comments-wrap">
         <h2>Comments</h2>
+        <div class="comments-disclaimer">
+          <strong>Heads up:</strong> comments here are temporarily hosted through
+          <a href="https://giscus.app" target="_blank" rel="noopener noreferrer">Giscus</a>,
+          which stores them as GitHub Discussions on this site's repository. That means:
+          <ul>
+            <li>Posting a comment requires a GitHub account.</li>
+            <li>Your comment, GitHub username, and any linked profile info are visible to GitHub and anyone reading the discussion.</li>
+            <li>This setup is a temporary measure while I work on a self-hosted comment system. When that's ready, existing comments will be migrated if possible.</li>
+            <li>If you'd rather not use GitHub, you're welcome to reach out via the support links at the bottom of this page instead.</li>
+          </ul>
+          Nothing here is tracked by me directly — Giscus and GitHub handle the data under their own policies.
+        </div>
         <div id="giscus-container"></div>
         <script src="https://giscus.app/client.js"
           data-repo="John0ogletree/Explained"
@@ -51,7 +63,6 @@ export function renderPage({
             var data = event.data;
             if (!data || !data.giscus) return;
 
-            // Map discussion metadata back to a slug via pathname
             var pathname = data.giscus.discussion || '';
             var match = /\\/topics\\/([^/?#]+)/.exec(pathname);
             if (!match) return;
@@ -78,7 +89,6 @@ export function renderPage({
 
           listeners.push(check);
 
-          // Request metadata for each topic card via hidden Giscus iframes
           document.querySelectorAll('.comment-count').forEach(function (el) {
             var slug = el.dataset.slug;
             var iframe = document.createElement('iframe');
@@ -343,7 +353,6 @@ function sharedStyles() {
     .page-meta span::before { content: '· '; margin-right: 4px; }
     .page-meta span:first-child::before { content: ''; margin: 0; }
 
-    /* Table of contents */
     .toc {
       background: var(--card);
       border: 1px solid var(--border);
@@ -479,7 +488,6 @@ function sharedStyles() {
     article tbody tr:last-child td { border-bottom: none; }
     article tbody tr:hover { background: rgba(38,52,73,0.4); }
 
-    /* Prev / Next */
     .topic-nav {
       display: flex;
       justify-content: space-between;
@@ -529,6 +537,26 @@ function sharedStyles() {
       color: var(--accent);
       margin: 0 0 1rem;
     }
+
+    .comments-disclaimer {
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-left: 3px solid var(--accent-strong);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .comments-disclaimer strong { color: var(--accent); }
+    .comments-disclaimer a { color: var(--link); text-decoration: none; }
+    .comments-disclaimer a:hover { text-decoration: underline; }
+    .comments-disclaimer ul {
+      margin: 0.6rem 0 0.6rem 1.2rem;
+      padding: 0;
+    }
+    .comments-disclaimer li { margin-bottom: 0.3rem; }
 
     footer {
       margin-top: 3rem;
