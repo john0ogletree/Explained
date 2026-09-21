@@ -127,7 +127,14 @@ export function renderPage({
     <p class="no-results" id="no-results">No topics match your search.</p>
     ${commentsHtml}
     <div id="jao-support" style="margin-top: 2.5rem;"></div>
-    <footer>Built at the edge · Cloudflare Pages · <a href="/feed.xml">RSS</a></footer>
+    <footer>
+      <div class="footer-brand">
+        This subdomain is a product of <a href="https://jao.life">jao.life</a> — a privacy-first ecosystem made by an indie developer.
+      </div>
+      <div class="footer-meta">
+        Built at the edge · Cloudflare Pages · <a href="/feed.xml">RSS</a>
+      </div>
+    </footer>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
@@ -568,5 +575,16 @@ function sharedStyles() {
     }
     footer a { color: var(--link); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+    .footer-brand {
+      margin-bottom: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+    .footer-brand a { color: var(--accent); }
+    .footer-brand a:hover { text-decoration: underline; }
+    .footer-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
   `;
 }
