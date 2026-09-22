@@ -1,9 +1,6 @@
 import { renderPage } from "../_shared/layout.js";
-import { parseFrontmatter, renderMarkdown, renderTOC } from "../_shared/markdown.js";
-import { fetchRawMarkdown, githubHeaders, getAllTopics } from "../_shared/github.js";
-import { readingTime, formatDate } from "../_shared/utils.js";
-
-const REPO = "John0ogletree/Explained";
+import { parseFrontmatter, renderMarkdown } from "../_shared/markdown.js";
+import { fetchRawMarkdown, getAllTopics } from "../_shared/github.js";
 
 export async function onRequest(context) {
   const { params, env, request } = context;
@@ -22,32 +19,9 @@ export async function onRequest(context) {
     return new Response("Topic not found", { status: 404 });
   }
 
-  // Last commit date (best-effort)
-  let lastUpdated = null;
-  try {
-    const commitsRes = await fetch(
-      `https://api.github.com/repos/${REPO}/commits?path=topics/${slug}.md&per_page=1`,
-      { headers: githubHeaders(token) }
-    );
-    if (commitsRes.ok) {
-      const commits = await commitsRes.json();
-      lastUpdated = commits[0]?.commit?.committer?.date || null;
-    }
-  } catch (_) {}
+  const { body: mdBody } = parseFrontmatter(raw);
+  const { html: bodyHtml } = renderMarkdown(mdBody);
 
-  const { tags, body: mdBody } = parseFrontmatter(raw);
-  const { html: bodyHtml, toc } = renderMarkdown(mdBody);
-
-  const title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-
-  const metaParts = [];
-  metaParts.push(`<span>${readingTime(mdBody)}</span>`);
-  if (lastUpdated) metaParts.push(`<span>Updated ${formatDate(lastUpdated)}</span>`);
-  const metaHtml = `<div class="page-meta">${metaParts.join("")}</div>`;
-
-  const tocHtml = renderTOC(toc);
-
-  // --- Prev / Next navigation ---
   let navHtml = "";
   try {
     const all = await getAllTopics(token);
@@ -72,9 +46,8 @@ export async function onRequest(context) {
   } catch (_) {}
 
   const html = renderPage({
-    title: `${title} — Explained`,
-    tags,
-    body: `${metaHtml}${tocHtml}<article>${bodyHtml}</article>${navHtml}`,
+    title: `${slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())} — Explained`,
+    body: `<article>${bodyHtml}</article>${navHtml}`,
     showHeader: false,
     showComments: true,
   });
