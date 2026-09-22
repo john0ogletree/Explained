@@ -1,7 +1,3 @@
----
-tags: [reading, research, learning]
----
-
 # How to Read a Technical Paper
 
 Most people read papers wrong. They start at the top, read every word in order, and give up around page 3 when the math gets dense. Then they decide the paper was "too hard" and move on.
