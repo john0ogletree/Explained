@@ -1,7 +1,3 @@
----
-tags: [security, cryptography, privacy]
----
-
 # Encryption
 
 **Encryption** is the process of transforming readable data into an unreadable form so that only someone with the right key can turn it back. It's the single most important tool in digital privacy, and it's been quietly protecting your messages, purchases, and logins for decades.
