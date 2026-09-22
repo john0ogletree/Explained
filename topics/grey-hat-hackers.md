@@ -1,7 +1,3 @@
----
-tags: [security, hacking, ethics]
----
-
 # Grey Hat Hackers
 
 A **grey hat hacker** operates in the murky space between the black hats (criminals) and white hats (authorized security professionals). They typically exploit systems **without permission**, but their motivations are usually curiosity, bragging rights, or a desire to help — not profit or malice. Sometimes they notify the owner afterward. Sometimes they don't.
