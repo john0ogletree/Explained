@@ -1,7 +1,3 @@
----
-tags: [networking, internet, fundamentals]
----
-
 # How the Internet Works
 
 The internet is a **network of networks** that agree on a common set of protocols so they can pass messages to each other. That's the whole idea. Everything else — websites, email, video calls, this page — is built on top of that one agreement.
