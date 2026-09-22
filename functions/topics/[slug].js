@@ -1,5 +1,5 @@
 import { renderPage } from "../_shared/layout.js";
-import { parseFrontmatter, renderMarkdown } from "../_shared/markdown.js";
+import { renderMarkdown } from "../_shared/markdown.js";
 import { fetchRawMarkdown, getAllTopics } from "../_shared/github.js";
 
 export async function onRequest(context) {
@@ -19,8 +19,7 @@ export async function onRequest(context) {
     return new Response("Topic not found", { status: 404 });
   }
 
-  const { body: mdBody } = parseFrontmatter(raw);
-  const { html: bodyHtml } = renderMarkdown(mdBody);
+  const { html: bodyHtml } = renderMarkdown(raw);
 
   let navHtml = "";
   try {
