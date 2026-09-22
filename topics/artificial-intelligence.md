@@ -1,7 +1,3 @@
----
-tags: [ai, machine learning, technology]
----
-
 # Artificial Intelligence
 
 **Artificial intelligence (AI)** is the field of building systems that perform tasks we associate with human intelligence — reasoning, learning, perceiving, understanding language, and making decisions. The term was coined in 1956 at the Dartmouth Workshop, but the ideas stretch back further, and the modern boom is only about a decade old.
