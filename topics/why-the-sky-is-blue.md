@@ -1,7 +1,3 @@
----
-tags: [physics, science]
----
-
 # Why the Sky is Blue
 
 Sunlight hits the atmosphere and **scatters**. Blue light scatters more
