@@ -15,19 +15,9 @@ export async function onRequest(context) {
   if (cached) return cached;
 
   const topics = await getAllTopics(token);
-  const allTags = [...new Set(topics.flatMap(t => t.tags.map(tag => tag.slug)))].sort();
-
-  const tagNames = {};
-  topics.forEach(t => t.tags.forEach(tag => { tagNames[tag.slug] = tag.name; }));
-
-  const tagPillsHtml = allTags
-    .map(slug => `<a class="tag-pill" href="/tags/${slug}">${tagNames[slug]}</a>`)
-    .join("");
-
   const { items, page: currentPage, totalPages } = paginate(topics, page);
 
   const body = `
-    ${allTags.length ? `<div class="filters">${tagPillsHtml}</div>` : ""}
     <div class="topics">
       ${items.length ? renderTopicCards(items) : '<p class="empty">No topics yet.</p>'}
     </div>
