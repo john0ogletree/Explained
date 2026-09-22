@@ -1,7 +1,3 @@
----
-tags: [software, architecture, privacy]
----
-
 # Local-First Software
 
 The phrase "local-first" describes a way of building applications where the primary copy of your data lives on **your device**, not on a company's server. It's a direct response to the dominant model of the last fifteen years, where almost everything you create in a web app is stored on "someone else's computer."
