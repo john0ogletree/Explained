@@ -1,7 +1,7 @@
 import { getAllTopics } from "./_shared/github.js";
 import { escapeHtml } from "./_shared/utils.js";
 
-const SITE = "https://explained.jao.life"; // ← change if your domain differs
+const SITE = "https://explained.jao.life";
 
 export async function onRequest(context) {
   const { env, request } = context;
@@ -13,26 +13,16 @@ export async function onRequest(context) {
   if (cached) return cached;
 
   const topics = await getAllTopics(token);
-
-  topics.sort((a, b) => {
-    if (a.lastUpdated && b.lastUpdated) {
-      return new Date(b.lastUpdated) - new Date(a.lastUpdated);
-    }
-    if (a.lastUpdated) return -1;
-    if (b.lastUpdated) return 1;
-    return a.title.localeCompare(b.title);
-  });
+  topics.sort((a, b) => a.title.localeCompare(b.title));
 
   const items = topics.map(t => {
-    const pubDate = t.lastUpdated ? new Date(t.lastUpdated).toUTCString() : new Date().toUTCString();
     const url = `${SITE}/topics/${t.slug}`;
     return `
     <item>
       <title>${escapeHtml(t.title)}</title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
-      <pubDate>${pubDate}</pubDate>
-      <description>${escapeHtml(t.title)}${t.tags.length ? ` — tagged ${escapeHtml(t.tags.map(x => x.name).join(", "))}` : ""}</description>
+      <description>${escapeHtml(t.title)}</description>
     </item>`;
   }).join("");
 
