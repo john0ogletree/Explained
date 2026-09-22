@@ -1,7 +1,3 @@
----
-tags: [privacy, security, society]
----
-
 # Surveillance
 
 **Surveillance** is the systematic observation of people's behavior, communications, or movements. It's not new — governments have watched their citizens for as long as there have been governments — but the scale, cost, and reach of it have changed completely in the last two decades.
