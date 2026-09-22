@@ -1,7 +1,3 @@
----
-tags: [privacy, law, technology]
----
-
 # Why Reading Privacy Policies Matters
 
 Nobody reads privacy policies. That's not a confession — it's a statistic. Studies consistently find that fewer than 1% of users ever open one, and of those, most close it within seconds. Companies know this. They write accordingly.
