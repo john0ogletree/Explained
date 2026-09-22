@@ -1,7 +1,3 @@
----
-tags: [learning, productivity, writing]
----
-
 # How to Take Notes That Actually Work
 
 Most people take notes the way they were taught in school: write down what the teacher says, review it before the test, forget it after. That works for exams. It fails for everything else.
