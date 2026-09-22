@@ -1,7 +1,3 @@
----
-tags: [health, science, psychology]
----
-
 # Why We Sleep
 
 Sleep is the single most underrated thing you can do for your health. Not diet. Not exercise. Not supplements. Sleep. Every major system in your body — brain, immune, hormonal, cardiovascular — depends on it, and no amount of coffee or willpower can substitute for it.
