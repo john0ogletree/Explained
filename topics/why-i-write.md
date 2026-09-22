@@ -1,7 +1,3 @@
----
-tags: [writing, personal]
----
-
 # Why I Write
 
 I write because I forget things. Not big things — small things. The shape of an argument I had six months ago. The reason a project failed. The version of me that thought a particular idea was obvious and didn't need writing down. All of it drifts away unless I catch it somewhere.
