@@ -1,28 +1,12 @@
-import { slugify, slugifyHeading } from "./utils.js";
-
 export function parseFrontmatter(md) {
   const match = md.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
-  if (!match) return { tags: [], body: md };
-
-  const yaml = match[1];
-  const tagLine = yaml.match(/^tags:\s*\[(.*?)\]/m);
-  const tags = tagLine
-    ? tagLine[1].split(",").map(t => t.trim()).filter(Boolean)
-    : [];
-
-  const tagObjects = tags.map(t => ({ name: t, slug: slugify(t) }));
-
-  return { tags: tagObjects, body: md.slice(match[0].length) };
+  if (!match) return { body: md };
+  return { body: md.slice(match[0].length) };
 }
 
-/**
- * Returns { html, toc } where toc = [{ level: 2, id, text }, ...]
- */
 export function renderMarkdown(md) {
   // Strip leading H1 (page already has one)
   md = md.replace(/^#\s+(.+)$/m, "");
-
-  const toc = [];
 
   // --- 1. Code fences first ---
   const codeBlocks = [];
@@ -43,11 +27,10 @@ export function renderMarkdown(md) {
     (tableBlock) => renderTable(tableBlock)
   );
 
-  // --- 3. Headings (collect TOC + add anchors) ---
+  // --- 3. Headings (with anchor IDs) ---
   md = md.replace(/^(##|###)\s+(.+)$/gm, (_, hashes, text) => {
     const level = hashes.length;
     const id = slugifyHeading(text);
-    toc.push({ level, id, text });
     return `<h${level} id="${id}">${text}<a class="anchor" href="#${id}" aria-label="Anchor">#</a></h${level}>`;
   });
 
@@ -60,7 +43,7 @@ export function renderMarkdown(md) {
   // --- 5. Lists (nested-aware) ---
   md = renderLists(md);
 
-  // --- 6. Inline styles for remaining text ---
+  // --- 6. Inline styles ---
   md = md
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
@@ -73,19 +56,17 @@ export function renderMarkdown(md) {
   // --- 8. Restore code blocks ---
   md = md.replace(/\u0000CODEBLOCK(\d+)\u0000/g, (_, i) => codeBlocks[Number(i)]);
 
-  return { html: md, toc };
+  return { html: md };
 }
 
-export function renderTOC(toc) {
-  const items = toc.filter(t => t.level === 2);
-  if (items.length < 2) return "";
-
-  return `<nav class="toc">
-    <div class="toc-title">On this page</div>
-    <ul>
-      ${items.map(t => `<li><a href="#${t.id}">${t.text}</a></li>`).join("")}
-    </ul>
-  </nav>`;
+function slugifyHeading(str) {
+  return String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function renderLists(md) {
