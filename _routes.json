@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "include": ["/", "/feed.xml", "/topics/*", "/tags/*"],
+  "include": ["/", "/feed.xml", "/topics/*"],
   "exclude": []
 }
