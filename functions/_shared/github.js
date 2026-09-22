@@ -1,5 +1,4 @@
-import { parseFrontmatter } from "./markdown.js";
-import { withCache, readingTime } from "./utils.js";
+import { withCache } from "./utils.js";
 
 const REPO = "John0ogletree/Explained";
 const BRANCH = "main";
@@ -35,35 +34,16 @@ export async function fetchRawMarkdown(filename, token) {
   return res.text();
 }
 
-async function fetchLastCommitDate(filename, token) {
-  const res = await fetch(
-    `https://api.github.com/repos/${REPO}/commits?path=topics/${filename}&per_page=1`,
-    { headers: githubHeaders(token) }
-  );
-  if (!res.ok) return null;
-  const commits = await res.json();
-  return commits[0]?.commit?.committer?.date || null;
-}
-
 async function fetchAllTopicsFromGitHub(token) {
   const mdFiles = await listTopics(token);
 
-  const topics = await Promise.all(
-    mdFiles.map(async (f) => {
-      const slug = f.name.replace(".md", "");
-      const raw = await fetchRawMarkdown(f.name, token);
-      const { tags } = parseFrontmatter(raw);
-      const lastUpdated = await fetchLastCommitDate(f.name, token);
-
-      return {
-        slug,
-        title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-        tags,
-        lastUpdated,
-        readingTime: readingTime(raw),
-      };
-    })
-  );
+  const topics = mdFiles.map((f) => {
+    const slug = f.name.replace(".md", "");
+    return {
+      slug,
+      title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+    };
+  });
 
   return topics.sort((a, b) => a.title.localeCompare(b.title));
 }
@@ -75,15 +55,11 @@ export async function getAllTopics(token) {
 export function renderTopicCards(topics) {
   return topics
     .map(t => `
-      <a class="topic-card" href="/topics/${t.slug}" data-search="${t.title.toLowerCase()} ${t.tags.map(tag => tag.name.toLowerCase()).join(" ")}" data-slug="${t.slug}">
+      <a class="topic-card" href="/topics/${t.slug}" data-search="${t.title.toLowerCase()}" data-slug="${t.slug}">
         <div class="topic-info">
           <span class="topic-title">${t.title}</span>
-          <div class="topic-meta">
-            ${t.tags.map(tag => `<a class="topic-tag" href="/tags/${tag.slug}">${tag.name}</a>`).join("")}
-          </div>
         </div>
         <div class="topic-right">
-          <span class="comment-count" data-slug="${t.slug}"></span>
           <span class="topic-arrow">→</span>
         </div>
       </a>
