@@ -1,17 +1,12 @@
 export function renderPage({
   title,
   subtitle,
-  tags,
   body,
   showHeader = true,
   showSearch = false,
   showComments = false,
   showCommentCounts = false,
 }) {
-  const tagsHtml = tags && tags.length
-    ? `<div class="page-tags">${tags.map(t => `<a class="page-tag" href="/tags/${t.slug}">${t.name}</a>`).join("")}</div>`
-    : "";
-
   const searchHtml = showSearch
     ? `<div class="search-wrap">
         <input type="search" id="topic-search" placeholder="Search topics…" autocomplete="off">
@@ -122,7 +117,6 @@ export function renderPage({
       <a class="back" href="/">← Back to topics</a>
     `}
     ${searchHtml}
-    ${tagsHtml}
     ${body}
     <p class="no-results" id="no-results">No topics match your search.</p>
     ${commentsHtml}
@@ -228,28 +222,6 @@ function sharedStyles() {
     #topic-search:focus { outline: none; border-color: var(--accent-strong); }
     #topic-search::placeholder { color: var(--muted); }
 
-    .filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1.5rem 0; }
-    .tag-pill {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.15s ease;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .tag-pill:hover { border-color: var(--accent-strong); color: var(--accent); }
-    .tag-pill.active {
-      background: var(--accent-strong);
-      border-color: var(--accent-strong);
-      color: #1a1a1a;
-      font-weight: 600;
-    }
-
     .topics { display: flex; flex-direction: column; gap: 0.6rem; }
     .topic-card {
       display: flex;
@@ -271,18 +243,6 @@ function sharedStyles() {
     .topic-card.hidden { display: none; }
     .topic-info { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .topic-title { font-weight: 500; }
-    .topic-meta { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
-    .topic-tag {
-      font-size: 0.65rem;
-      color: var(--accent);
-      background: rgba(245,158,11,0.1);
-      padding: 1px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(245,158,11,0.25);
-      text-decoration: none;
-      transition: background 0.15s ease;
-    }
-    .topic-tag:hover { background: rgba(245,158,11,0.2); }
     .topic-right { display: flex; align-items: center; gap: 8px; }
     .comment-count {
       font-size: 0.7rem;
@@ -334,56 +294,6 @@ function sharedStyles() {
     }
     .no-results { display: none; }
     .no-results.show { display: block; }
-
-    .page-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
-    .page-tag {
-      font-size: 0.7rem;
-      color: var(--accent);
-      background: rgba(245,158,11,0.1);
-      padding: 2px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(245,158,11,0.25);
-      text-decoration: none;
-      transition: background 0.15s ease;
-    }
-    .page-tag:hover { background: rgba(245,158,11,0.2); }
-
-    .page-meta {
-      display: flex;
-      gap: 1rem;
-      color: var(--muted);
-      font-size: 0.8rem;
-      margin-bottom: 1.75rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .page-meta span::before { content: '· '; margin-right: 4px; }
-    .page-meta span:first-child::before { content: ''; margin: 0; }
-
-    .toc {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 2rem;
-      font-size: 0.9rem;
-    }
-    .toc-title {
-      color: var(--accent);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.6rem;
-    }
-    .toc ul { list-style: none; padding: 0; margin: 0; }
-    .toc li { margin-bottom: 0.3rem; }
-    .toc a {
-      color: var(--text);
-      text-decoration: none;
-      transition: color 0.15s ease;
-    }
-    .toc a:hover { color: var(--accent); }
 
     article { font-size: 1rem; }
     article h1 {
