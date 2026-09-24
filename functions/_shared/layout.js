@@ -152,7 +152,9 @@ export function renderPage({
     })();
   </script>
   ${commentCountScript}
-  <script src="https://support.jao.life/support.js"></script>
+  <script src="https://support.jao.life/support.js"
+          crossorigin="anonymous"
+          defer></script>
 </body>
 </html>`;
 }
