@@ -102,8 +102,12 @@ export function renderPage({
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="index, follow">
   <link rel="alternate" type="application/rss+xml" title="Explained" href="/feed.xml">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer">
   <style>${sharedStyles()}</style>
 </head>
 <body>
@@ -121,16 +125,46 @@ export function renderPage({
     <p class="no-results" id="no-results">No topics match your search.</p>
     ${commentsHtml}
     <div id="jao-support" style="margin-top: 2.5rem;"></div>
+
     <footer>
       <div class="footer-brand">
-        This subdomain is a product of <a href="https://jao.life">jao.life</a> — a privacy-first ecosystem made by an indie developer.
+        This subdomain is a product of <a href="https://jao.life" rel="noopener noreferrer">jao.life</a>
+        — a privacy-first ecosystem made by an indie developer.
       </div>
+
+      <details class="footer-transparency">
+        <summary>What this page loads from third parties</summary>
+        <ul>
+          <li>
+            <a href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" rel="noopener noreferrer">highlight.js</a>
+            — syntax highlighting for code blocks. Loaded from Cloudflare's CDN. Sends your IP to cdnjs.cloudflare.com.
+          </li>
+          <li>
+            <a href="https://support.jao.life/support.js" rel="noopener noreferrer">support.jao.life</a>
+            — the support widget in the corner. A first-party service run by jao.life. No third-party trackers.
+          </li>
+          ${showComments ? `
+          <li>
+            <a href="https://giscus.app" rel="noopener noreferrer">giscus.app</a>
+            — comments, stored as GitHub Discussions. Loads only if this page has a comments section. Requires a GitHub account to post.
+          </li>` : ""}
+        </ul>
+        <p class="footer-transparency-note">
+          No analytics. No ads. No tracking pixels. No fonts loaded from third parties.
+          All text uses your system's default fonts. The RSS feed, sitemap, and this page's HTML
+          are served directly from Cloudflare's edge.
+        </p>
+      </details>
+
       <div class="footer-meta">
-        Built at the edge · Cloudflare Pages · <a href="/feed.xml">RSS</a>
+        Built at the edge · Cloudflare Pages · <a href="/feed.xml" rel="noopener noreferrer">RSS</a>
       </div>
     </footer>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"></script>
   <script>hljs.highlightAll();</script>
   <script>
     (function () {
@@ -154,6 +188,7 @@ export function renderPage({
   ${commentCountScript}
   <script src="https://support.jao.life/support.js"
           crossorigin="anonymous"
+          referrerpolicy="no-referrer"
           defer></script>
 </body>
 </html>`;
@@ -494,7 +529,55 @@ function sharedStyles() {
     }
     .footer-brand a { color: var(--accent); }
     .footer-brand a:hover { text-decoration: underline; }
+
+    .footer-transparency {
+      margin: 1rem auto;
+      max-width: 560px;
+      text-align: left;
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+    }
+    .footer-transparency summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 500;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .footer-transparency summary::before {
+      content: '▸';
+      display: inline-block;
+      transition: transform 0.15s ease;
+    }
+    .footer-transparency[open] summary::before {
+      transform: rotate(90deg);
+    }
+    .footer-transparency summary::-webkit-details-marker { display: none; }
+    .footer-transparency ul {
+      margin: 0.6rem 0 0.6rem 1rem;
+      padding: 0;
+    }
+    .footer-transparency li {
+      margin-bottom: 0.4rem;
+      line-height: 1.5;
+    }
+    .footer-transparency-note {
+      margin: 0.6rem 0 0;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
     .footer-meta {
+      margin-top: 1rem;
       font-size: 0.75rem;
       color: var(--muted);
     }
