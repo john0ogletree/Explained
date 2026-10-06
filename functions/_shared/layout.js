@@ -124,7 +124,6 @@ export function renderPage({
     ${body}
     <p class="no-results" id="no-results">No topics match your search.</p>
     ${commentsHtml}
-    <div id="jao-support" style="margin-top: 2.5rem;"></div>
 
     <footer>
       <div class="footer-brand">
@@ -138,10 +137,6 @@ export function renderPage({
           <li>
             <a href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" rel="noopener noreferrer">highlight.js</a>
             — syntax highlighting for code blocks. Loaded from Cloudflare's CDN. Sends your IP to cdnjs.cloudflare.com.
-          </li>
-          <li>
-            <a href="https://support.jao.life/support.js" rel="noopener noreferrer">support.jao.life</a>
-            — the support widget in the corner. A first-party service run by jao.life. No third-party trackers.
           </li>
           ${showComments ? `
           <li>
@@ -186,10 +181,6 @@ export function renderPage({
     })();
   </script>
   ${commentCountScript}
-  <script src="https://support.jao.life/support.js"
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer"
-          defer></script>
 </body>
 </html>`;
 }
