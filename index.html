@@ -22,6 +22,7 @@
             width: 100%;
             overflow-x: hidden;
         }
+
         /* 20% Sidebar */
         .sidebar {
             background: #f6f8fa;
@@ -296,7 +297,7 @@
         const USERNAME = 'john0ogletree';
         const REPO = 'explained';
         const POSTS_DIR = '';
-        const GITHUB_TOKEN = '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';
+        const GITHUB_TOKEN = 'CLOUDFLARE_ESR_PLACEHOLDER';
 
         let currentMarkdownText = '';
         let currentTitle = '';
@@ -392,7 +393,7 @@
             const apiUrl = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${POSTS_DIR}`;
 
             const headers = { 'Accept': 'application/vnd.github+json' };
-            if (GITHUB_TOKEN) {
+            if (GITHUB_TOKEN && GITHUB_TOKEN !== 'CLOUDFLARE_ESR_PLACEHOLDER') {
                 headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
             }
 
