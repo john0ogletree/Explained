@@ -4,705 +4,803 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="doc-title">Explained // Web Explanations</title>
-<!-- Chosen Palette: Slate & Sapphire Obsidian with Strict 20% Sidebar Grid Across All Viewports & High Readability Text Wrapping -->
+<!-- Chosen Palette: Obsidian & Slate Blue with Fixed 20% Sidebar Grid & Code-Block Parsing Precision -->
 <style>
 :root {
---bg-base: #040711;
---bg-surface: #0b101d;
---bg-card: #121929;
---bg-hover: #1a2336;
---border: #1e293d;
---border-highlight: #3b82f6;
---text-main: #f8fafc;
---text-muted: #cbd5e1;
---text-subtle: #94a3b8;
---accent: #3b82f6;
---accent-hover: #60a5fa;
---accent-bg: rgba(59, 130, 246, 0.12);
---code-bg: #060b17;
---shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
---font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
---font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --bg-base: #040711;
+    --bg-surface: #0b101d;
+    --bg-card: #121929;
+    --bg-hover: #1a2336;
+    --border: #1e293d;
+    --border-highlight: #3b82f6;
+    --text-main: #f8fafc;
+    --text-muted: #cbd5e1;
+    --text-subtle: #94a3b8;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --accent-bg: rgba(59, 130, 246, 0.12);
+    --code-bg: #070c18;
+    --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
-​[data-theme="light"] {
---bg-base: #f8fafc;
---bg-surface: #ffffff;
---bg-card: #f1f5f9;
---bg-hover: #e2e8f0;
---border: #cbd5e1;
---border-highlight: #2563eb;
---text-main: #0f172a;
---text-muted: #334155;
---text-subtle: #64748b;
---accent: #2563eb;
---accent-hover: #1d4ed8;
---accent-bg: rgba(37, 99, 235, 0.08);
---code-bg: #f8fafc;
---shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+
+[data-theme="light"] {
+    --bg-base: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-card: #f1f5f9;
+    --bg-hover: #e2e8f0;
+    --border: #cbd5e1;
+    --border-highlight: #2563eb;
+    --text-main: #0f172a;
+    --text-muted: #334155;
+    --text-subtle: #64748b;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-bg: rgba(37, 99, 235, 0.08);
+    --code-bg: #f1f5f9;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
-​{ box-sizing: border-box; }
+
+* { box-sizing: border-box; }
 html, body {
-margin: 0; padding: 0;
-height: 100vh; width: 100vw;
-overflow: hidden;
-font-family: var(--font-sans);
-background-color: var(--bg-base);
-color: var(--text-main);
-line-height: 1.7;
--webkit-text-size-adjust: 100%;
+    margin: 0; padding: 0;
+    height: 100vh; width: 100vw;
+    overflow: hidden;
+    font-family: var(--font-sans);
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    line-height: 1.7;
+    -webkit-text-size-adjust: 100%;
 }
-​.app-layout {
-display: grid;
-grid-template-columns: 20% 80%;
-height: 100vh;
-width: 100vw;
-overflow: hidden;
+
+.app-layout {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
 }
-​.sidebar {
-background-color: var(--bg-surface);
-border-right: 1px solid var(--border);
-display: flex;
-flex-direction: column;
-height: 100vh;
-overflow: hidden;
-z-index: 10;
+
+.sidebar {
+    background-color: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 10;
 }
-​.sidebar-header {
-padding: 12px 10px;
-border-bottom: 1px solid var(--border);
-display: flex;
-align-items: center;
-justify-content: space-between;
-flex-shrink: 0;
-gap: 4px;
+
+.sidebar-header {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 4px;
 }
-​.brand {
-font-family: var(--font-mono);
-font-size: clamp(0.65rem, 1.1vw, 0.85rem);
-font-weight: 800;
-color: var(--text-main);
-cursor: pointer;
-display: flex;
-align-items: center;
-gap: 6px;
-letter-spacing: -0.02em;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
+
+.brand {
+    font-family: var(--font-mono);
+    font-size: clamp(0.65rem, 1.1vw, 0.85rem);
+    font-weight: 800;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .brand-dot {
-width: 6px; height: 6px;
-background: var(--accent);
-border-radius: 50%;
-box-shadow: 0 0 8px var(--accent);
-flex-shrink: 0;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+    flex-shrink: 0;
 }
-​.btn-icon {
-background: var(--bg-card);
-border: 1px solid var(--border);
-color: var(--text-muted);
-width: 28px; height: 28px;
-border-radius: 6px;
-display: flex; align-items: center; justify-content: center;
-cursor: pointer;
-font-size: 0.75rem;
-transition: all 0.2s ease;
-flex-shrink: 0;
+
+.btn-icon {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 .btn-icon:hover {
-border-color: var(--accent);
-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent);
 }
-​.sidebar-action-bar {
-padding: 10px;
-border-bottom: 1px solid var(--border);
-flex-shrink: 0;
+
+.sidebar-action-bar {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
 }
-​.btn-support-pill {
-width: 100%;
-background: var(--accent-bg);
-border: 1px solid var(--accent);
-color: var(--accent);
-font-family: var(--font-mono);
-font-size: clamp(0.55rem, 0.9vw, 0.72rem);
-font-weight: 700;
-padding: 8px 6px;
-border-radius: 8px;
-cursor: pointer;
-display: flex; align-items: center; justify-content: center; gap: 4px;
-transition: all 0.2s ease;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
+
+.btn-support-pill {
+    width: 100%;
+    background: var(--accent-bg);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: clamp(0.55rem, 0.9vw, 0.72rem);
+    font-weight: 700;
+    padding: 8px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .btn-support-pill:hover {
-background: var(--accent);
-color: #ffffff;
-transform: translateY(-1px);
+    background: var(--accent);
+    color: #ffffff;
+    transform: translateY(-1px);
 }
-​.search-box-wrap {
-padding: 10px;
-border-bottom: 1px solid var(--border);
-flex-shrink: 0;
-position: relative;
+
+.search-box-wrap {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
 }
 .search-input {
-width: 100%;
-background: var(--bg-card);
-border: 1px solid var(--border);
-color: var(--text-main);
-font-family: var(--font-mono);
-font-size: clamp(0.6rem, 0.95vw, 0.78rem);
-padding: 7px 8px 7px 26px;
-border-radius: 8px;
-outline: none;
-transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-size: clamp(0.6rem, 0.95vw, 0.78rem);
+    padding: 7px 8px 7px 26px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .search-input:focus {
-border-color: var(--accent);
-box-shadow: 0 0 0 3px var(--accent-bg);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
 }
 .search-icon {
-position: absolute;
-left: 17px;
-top: 50%;
-transform: translateY(-50%);
-color: var(--text-subtle);
-font-size: 0.7rem;
-pointer-events: none;
+    position: absolute;
+    left: 17px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-subtle);
+    font-size: 0.7rem;
+    pointer-events: none;
 }
-​.nav-category-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 10px 10px 4px;
-flex-shrink: 0;
+
+.nav-category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 10px 4px;
+    flex-shrink: 0;
 }
 .nav-category-title {
-font-family: var(--font-mono);
-font-size: clamp(0.5rem, 0.8vw, 0.62rem);
-font-weight: 800;
-text-transform: uppercase;
-letter-spacing: 0.08em;
-color: var(--text-subtle);
+    font-family: var(--font-mono);
+    font-size: clamp(0.5rem, 0.8vw, 0.62rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-subtle);
 }
 .nav-badge-count {
-font-family: var(--font-mono);
-font-size: clamp(0.5rem, 0.75vw, 0.6rem);
-background: var(--bg-card);
-border: 1px solid var(--border);
-color: var(--text-muted);
-padding: 1px 4px;
-border-radius: 10px;
+    font-family: var(--font-mono);
+    font-size: clamp(0.5rem, 0.75vw, 0.6rem);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 1px 4px;
+    border-radius: 10px;
 }
-​.nav-scroll-viewport {
-flex-grow: 1;
-overflow-y: auto;
-overflow-x: hidden;
-padding: 4px 6px 20px;
-min-height: 0;
+
+.nav-scroll-viewport {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px 6px 20px;
+    min-height: 0;
 }
 .nav-scroll-viewport::-webkit-scrollbar { width: 3px; }
 .nav-scroll-viewport::-webkit-scrollbar-track { background: transparent; }
 .nav-scroll-viewport::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 .nav-scroll-viewport::-webkit-scrollbar-thumb:hover { background: var(--border-highlight); }
-​.nav-list {
-list-style: none;
-padding: 0; margin: 0;
+
+.nav-list {
+    list-style: none;
+    padding: 0; margin: 0;
 }
 .nav-item { margin: 3px 0; }
 .nav-link {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 7px 8px;
-font-size: clamp(0.68rem, 1.05vw, 0.85rem);
-font-weight: 500;
-color: var(--text-muted);
-text-decoration: none;
-border-radius: 6px;
-border: 1px solid transparent;
-transition: all 0.18s ease;
-word-break: break-word;
-overflow-wrap: break-word;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 8px;
+    font-size: clamp(0.68rem, 1.05vw, 0.85rem);
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.18s ease;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 .nav-link-content {
-display: flex;
-align-items: center;
-gap: 6px;
-overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
 }
 .nav-link-dot {
-width: 4px; height: 4px;
-border-radius: 50%;
-background: var(--text-subtle);
-flex-shrink: 0;
-transition: background 0.18s ease;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--text-subtle);
+    flex-shrink: 0;
+    transition: background 0.18s ease;
 }
 .nav-link:hover {
-background: var(--bg-hover);
-color: var(--text-main);
-border-color: var(--border);
+    background: var(--bg-hover);
+    color: var(--text-main);
+    border-color: var(--border);
 }
 .nav-link:hover .nav-link-dot {
-background: var(--accent);
+    background: var(--accent);
 }
 .nav-link.active {
-background: var(--accent-bg);
-color: var(--accent);
-font-weight: 700;
-border-color: var(--accent);
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 700;
+    border-color: var(--accent);
 }
 .nav-link.active .nav-link-dot {
-background: var(--accent);
-box-shadow: 0 0 6px var(--accent);
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
 }
-​.main-viewport {
-height: 100vh;
-overflow-y: auto;
-padding: 0 clamp(20px, 5vw, 64px) 80px;
-background: var(--bg-base);
+
+.main-viewport {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 0 clamp(20px, 5vw, 64px) 80px;
+    background: var(--bg-base);
 }
 .main-viewport::-webkit-scrollbar { width: 8px; }
 .main-viewport::-webkit-scrollbar-track { background: transparent; }
 .main-viewport::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-​.article-shell {
-max-width: 840px;
-margin: 0 auto;
+
+.article-shell {
+    max-width: 840px;
+    margin: 0 auto;
 }
-​.article-header {
-position: sticky;
-top: 0;
-z-index: 20;
-background-color: var(--bg-base);
-backdrop-filter: blur(8px);
--webkit-backdrop-filter: blur(8px);
-border-bottom: 1px solid transparent;
-padding: 40px 0 24px 0;
-margin-bottom: 36px;
-transition: padding 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+.article-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: var(--bg-base);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid transparent;
+    padding: 32px 0 20px 0;
+    margin-bottom: 28px;
+    transition: padding 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
-​.article-header.scrolled {
-padding: 20px 0 16px 0;
-border-bottom: 1px solid var(--border);
-box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
-background-color: var(--bg-base);
+
+.article-header.scrolled {
+    padding: 18px 0 14px 0;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.25);
+    background-color: var(--bg-base);
 }
-​.article-title {
-font-size: clamp(1.5rem, 3.2vw, 2.3rem);
-font-weight: 800;
-letter-spacing: -0.03em;
-color: var(--text-main);
-margin: 0 0 14px 0;
-line-height: 1.25;
-word-break: break-word;
+
+.article-title {
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-main);
+    margin: 0 0 12px 0;
+    line-height: 1.25;
+    word-break: break-word;
 }
-​.meta-row {
-display: flex;
-align-items: center;
-justify-content: space-between;
-font-family: var(--font-mono);
-font-size: clamp(0.7rem, 1vw, 0.82rem);
-color: var(--text-subtle);
-flex-wrap: wrap;
-gap: 12px;
+
+.meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: clamp(0.7rem, 1vw, 0.82rem);
+    color: var(--text-subtle);
+    flex-wrap: wrap;
+    gap: 12px;
 }
-​.btn-action {
-background: var(--bg-card);
-border: 1px solid var(--border);
-color: var(--text-muted);
-font-family: var(--font-mono);
-font-size: 0.78rem;
-font-weight: 600;
-padding: 6px 14px;
-border-radius: 8px;
-cursor: pointer;
-transition: all 0.15s ease;
+
+.btn-action {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
 }
 .btn-action:hover {
-border-color: var(--accent);
-color: var(--accent);
-background: var(--bg-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--bg-hover);
 }
-​.markdown-body {
-font-size: clamp(0.95rem, 1.2vw, 1.08rem);
-color: var(--text-muted);
-line-height: 1.8;
-word-break: break-word;
-overflow-wrap: break-word;
+
+.markdown-body {
+    font-size: clamp(0.95rem, 1.2vw, 1.08rem);
+    color: var(--text-muted);
+    line-height: 1.8;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 .markdown-body h1, .markdown-body h2, .markdown-body h3 {
-font-weight: 800;
-margin-top: 1.8em;
-margin-bottom: 0.8em;
-color: var(--text-main);
-border-bottom: 1px solid var(--border);
-padding-bottom: 8px;
-letter-spacing: -0.02em;
+    font-weight: 800;
+    margin-top: 1.8em;
+    margin-bottom: 0.8em;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    letter-spacing: -0.02em;
 }
 .markdown-body h1 { font-size: 1.7rem; }
 .markdown-body h2 { font-size: 1.35rem; }
 .markdown-body h3 { font-size: 1.12rem; border-bottom: none; }
 .markdown-body p { margin: 1.2em 0; color: var(--text-muted); }
 .markdown-body strong { color: var(--text-main); }
+.markdown-body ul, .markdown-body ol { padding-left: 1.4em; margin: 1em 0; }
+.markdown-body li { margin: 0.4em 0; }
+
 .markdown-body pre {
-background: var(--code-bg);
-border: 1px solid var(--border);
-border-radius: 10px;
-padding: 20px;
-overflow-x: auto;
-font-family: var(--font-mono);
-font-size: 0.88rem;
-margin: 1.6em 0;
-color: var(--text-main);
-white-space: pre;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin: 1.6em 0;
+    color: var(--text-main);
+    white-space: pre;
+    tab-size: 4;
 }
 .markdown-body code {
-font-family: var(--font-mono);
-background: var(--bg-card);
-border: 1px solid var(--border);
-padding: 0.25em 0.45em;
-border-radius: 6px;
-font-size: 0.86em;
-color: var(--accent);
-word-break: break-all;
+    font-family: var(--font-mono);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.2em 0.45em;
+    border-radius: 5px;
+    font-size: 0.86em;
+    color: var(--accent);
+    word-break: break-all;
 }
-.markdown-body pre code { background: transparent; border: none; padding: 0; color: inherit; word-break: normal; white-space: pre; }
+.markdown-body pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+    word-break: normal;
+    white-space: pre;
+    font-size: 1em;
+}
 .markdown-body table {
-width: 100%;
-border-collapse: collapse;
-margin: 1.8em 0;
-border: 1px solid var(--border);
-border-radius: 8px;
-overflow: hidden;
-font-size: 0.92rem;
-display: block;
-overflow-x: auto;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.8em 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.92rem;
+    display: block;
+    overflow-x: auto;
 }
 .markdown-body th, .markdown-body td {
-padding: 10px 14px;
-border: 1px solid var(--border);
-text-align: left;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
 }
 .markdown-body th {
-background: var(--bg-card);
-font-family: var(--font-mono);
-font-size: 0.8rem;
-text-transform: uppercase;
-color: var(--text-main);
+    background: var(--bg-card);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-main);
 }
 .markdown-body blockquote {
-margin: 1.6em 0;
-padding: 12px 20px;
-border-left: 3px solid var(--accent);
-background: var(--bg-surface);
-border-radius: 0 8px 8px 0;
-color: var(--text-muted);
+    margin: 1.6em 0;
+    padding: 12px 20px;
+    border-left: 3px solid var(--accent);
+    background: var(--bg-surface);
+    border-radius: 0 8px 8px 0;
+    color: var(--text-muted);
 }
-​.modal-backdrop {
-position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-background: rgba(3, 7, 18, 0.78);
-backdrop-filter: blur(6px);
-display: none; align-items: center; justify-content: center;
-z-index: 100;
+
+.modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(3, 7, 18, 0.78);
+    backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100;
 }
 .modal-backdrop.active { display: flex; }
 .modal-content {
-background: var(--bg-surface);
-border: 1px solid var(--border);
-border-radius: 14px;
-width: 90%; max-width: 420px;
-padding: 26px;
-box-shadow: var(--shadow);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 90%; max-width: 420px;
+    padding: 26px;
+    box-shadow: var(--shadow);
 }
 .modal-head {
-display: flex; align-items: center; justify-content: space-between;
-margin-bottom: 12px; padding-bottom: 10px;
-border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
 }
 .modal-title { font-size: 1.1rem; font-weight: 800; margin: 0; }
 .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
 .modal-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
 .support-buttons-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
 .support-link {
-background: var(--bg-card);
-border: 1px solid var(--border);
-padding: 12px;
-border-radius: 8px;
-color: var(--accent);
-text-decoration: none;
-font-family: var(--font-mono);
-font-size: 0.85rem;
-font-weight: 700;
-text-align: center;
-transition: all 0.15s ease;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 8px;
+    color: var(--accent);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.15s ease;
 }
 .support-link:hover { border-color: var(--accent); background: var(--accent-bg); transform: translateY(-1px); }
 </style>
 </head>
 <body>
-​<div class="app-layout">
-<aside class="sidebar">
-<div class="sidebar-header">
-<div class="brand" onclick="goHome()" title="EXPLAINED">
-<div class="brand-dot"></div>EXPLAINED
-</div>
-<button class="btn-icon" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">☀️</button>
-</div>
-​<div class="sidebar-action-bar">
-<button class="btn-support-pill" onclick="toggleModal(true)">💖 Support</button>
-</div>
-​<div class="search-box-wrap">
-<span class="search-icon">🔍</span>
-<input type="text" id="search-input" class="search-input" placeholder="Filter..." oninput="filterArticles()">
-</div>
-​<div class="nav-category-header">
-<span class="nav-category-title">Topics</span>
-<span class="nav-badge-count" id="article-count">0</span>
-</div>
-​<div class="nav-scroll-viewport">
-<ul class="nav-list" id="file-list">
-<li style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-subtle); padding:6px;">[LOADING...]</li>
-</ul>
-</div>
-</aside>
-​<main class="main-viewport" onscroll="handleMainScroll(event)">
-<div class="article-shell">
-<header class="article-header" id="article-header-elem">
-<h1 class="article-title" id="page-title">Explanations of the Web</h1>
-<div class="meta-row">
-<span id="read-time">Pick an explanation from the sidebar navigation menu</span>
-<button class="btn-action" id="share-btn" style="display:none;" onclick="shareDoc()">🔗 SHARE</button>
-</div>
-</header>
-​<article class="markdown-body" id="content-body">
-<p style="color: var(--text-subtle); font-family: var(--font-mono);">
-Pick an explanation from the sidebar navigation menu
-</p>
-</article>
-</div>
+
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand" onclick="goHome()" title="EXPLAINED">
+                <div class="brand-dot"></div>EXPLAINED
+            </div>
+            <button class="btn-icon" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">☀️</button>
+        </div>
+
+        <div class="sidebar-action-bar">
+            <button class="btn-support-pill" onclick="toggleModal(true)">💖 Support</button>
+        </div>
+
+        <div class="search-box-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" class="search-input" placeholder="Filter..." oninput="filterArticles()">
+        </div>
+
+        <div class="nav-category-header">
+            <span class="nav-category-title">Topics</span>
+            <span class="nav-badge-count" id="article-count">0</span>
+        </div>
+
+        <div class="nav-scroll-viewport">
+            <ul class="nav-list" id="file-list">
+                <li style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-subtle); padding:6px;">[LOADING...]</li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-viewport" onscroll="handleMainScroll(event)">
+    <div class="article-shell">
+        <header class="article-header" id="article-header-elem">
+            <h1 class="article-title" id="page-title">Explanations of the Web</h1>
+            <div class="meta-row">
+                <span id="read-time">Explore the curated collection</span>
+                <button class="btn-action" id="share-btn" style="display:none;" onclick="shareDoc()">🔗 SHARE</button>
+            </div>
+        </header>
+
+        <article class="markdown-body" id="content-body">
+            <p style="color: var(--text-subtle); font-family: var(--font-mono);">
+                Pick an explanation from the sidebar navigation menu
+            </p>
+        </article>
+    </div>
 </main>
 </div>
-​<div class="modal-backdrop" id="support-modal" onclick="if(event.target===this)toggleModal(false)">
-<div class="modal-content">
-<div class="modal-head">
-<h3 class="modal-title">Support Independent Work</h3>
-<button class="modal-close" onclick="toggleModal(false)">✕</button>
+
+<div class="modal-backdrop" id="support-modal" onclick="if(event.target===this)toggleModal(false)">
+    <div class="modal-content">
+        <div class="modal-head">
+            <h3 class="modal-title">Support Independent Work</h3>
+            <button class="modal-close" onclick="toggleModal(false)">✕</button>
+        </div>
+        <p class="modal-sub">If you find these explanations of the web helpful, voluntary contributions are greatly appreciated:</p>
+        <div class="support-buttons-grid">
+            <a class="support-link" href="https://cash.app/$john0ogletree" target="_blank" rel="noopener">Cash App</a>
+            <a class="support-link" href="https://chime.com/john0ogletree" target="_blank" rel="noopener">Chime</a>
+            <a class="support-link" href="https://venmo.com/john0ogletree" target="_blank" rel="noopener">Venmo</a>
+            <a class="support-link" href="https://paypal.me/john0ogletree" target="_blank" rel="noopener">PayPal</a>
+        </div>
+    </div>
 </div>
-<p class="modal-sub">If you find these explanations of the web helpful, voluntary contributions are greatly appreciated:</p>
-<div class="support-buttons-grid">
-<a class="support-link" href="https://cash.app/$john0ogletree" target="_blank" rel="noopener">Cash App</a>
-<a class="support-link" href="https://chime.com/john0ogletree" target="_blank" rel="noopener">Chime</a>
-<a class="support-link" href="https://venmo.com/john0ogletree" target="_blank" rel="noopener">Venmo</a>
-<a class="support-link" href="https://paypal.me/john0ogletree" target="_blank" rel="noopener">PayPal</a>
-</div>
-</div>
-</div>
-​<script>
+
+<script>
 const USERNAME = 'john0ogletree';
 const REPO = 'explained';
 const POSTS_DIR = '';
 const GITHUB_TOKEN = 'CLOUDFLARE_ESR_PLACEHOLDER';
-​let allArticles = [];
+
+let allArticles = [];
 let rawMarkdown = '';
 let currentTitle = '';
-​function initTheme() {
-const saved = localStorage.getItem('explained_theme') || 'dark';
-document.documentElement.setAttribute('data-theme', saved);
-document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+
+function initTheme() {
+    const saved = localStorage.getItem('explained_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
 }
-​function toggleTheme() {
-const current = document.documentElement.getAttribute('data-theme');
-const next = current === 'dark' ? 'light' : 'dark';
-document.documentElement.setAttribute('data-theme', next);
-localStorage.setItem('explained_theme', next);
-document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('explained_theme', next);
+    document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
 }
-​function toggleModal(show) {
-document.getElementById('support-modal').classList.toggle('active', show);
+
+function toggleModal(show) {
+    document.getElementById('support-modal').classList.toggle('active', show);
 }
-​document.addEventListener('keydown', e => {
-if (e.key === 'Escape') toggleModal(false);
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') toggleModal(false);
 });
-​initTheme();
-​function compileMarkdown(md) {
-let text = md.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
-​// Extract code blocks cleanly to protect inner linebreaks and formatting
-let codeBlocks = [];
-text = text.replace(/(\w*)\n([\s\S]*?)/g, (match, lang, code) => {
-let placeholder = __CODE_BLOCK_${codeBlocks.length}__;
-codeBlocks.push(<pre><code>${code.trim()}</code></pre>);
-return placeholder;
-});
-​let lines = text.split('\n'), inT = false, tBuf = '', pLines = [];
-for (let i = 0; i < lines.length; i++) {
-let r = lines[i].trim();
-if (r.startsWith('|') && r.endsWith('|')) {
-if (r.replace(/[\s|:-]/g, '') === '') continue;
-if (!inT) { inT = true; tBuf = '<table>\n'; }
-let cols = r.split('|').slice(1, -1);
-let isHead = !tBuf.includes('<thead>');
-if (isHead) {
-tBuf += '<thead><tr>';
-cols.forEach(c => tBuf += <th>${c.trim()}</th>);
-tBuf += '</tr></thead><tbody>\n';
-} else {
-tBuf += '<tr>';
-cols.forEach(c => tBuf += <td>${c.trim()}</td>);
-tBuf += '</tr>\n';
+
+initTheme();
+
+function compileMarkdown(md) {
+    if (!md) return '';
+
+    // Step 1: Protect and extract code blocks before escaping HTML
+    let codeBlocks = [];
+    let text = md.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (match, lang, code) => {
+        let escapedCode = code
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        let placeholder = `\n\n__CODE_BLOCK_${codeBlocks.length}__\n\n`;
+        codeBlocks.push(`<pre><code class="language-${lang || 'text'}">${escapedCode}</code></pre>`);
+        return placeholder;
+    });
+
+    // Step 2: Escape HTML tags outside code blocks
+    text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // Step 3: Handle markdown tables
+    let lines = text.split('\n');
+    let inTable = false;
+    let tableBuffer = '';
+    let processedLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (line.startsWith('|') && line.endsWith('|')) {
+            if (line.replace(/[\s\|:-]/g, '') === '') continue;
+            if (!inTable) {
+                inTable = true;
+                tableBuffer = '<table>\n';
+            }
+            let cols = line.split('|').slice(1, -1);
+            let isHead = !tableBuffer.includes('<thead>');
+            if (isHead) {
+                tableBuffer += '<thead><tr>' + cols.map(c => `<th>${c.trim()}</th>`).join('') + '</tr></thead><tbody>\n';
+            } else {
+                tableBuffer += '<tr>' + cols.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>\n';
+            }
+            continue;
+        } else if (inTable) {
+            tableBuffer += '</tbody></table>';
+            processedLines.push(tableBuffer);
+            inTable = false;
+            tableBuffer = '';
+        }
+        processedLines.push(lines[i]);
+    }
+    if (inTable) {
+        processedLines.push(tableBuffer + '</tbody></table>');
+    }
+
+    // Step 4: Line-level parsing for titles, quotes, lists, bold, italic
+    let parsed = processedLines.join('\n')
+        .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/^\> (.*$)/gm, '<blockquote>$1</blockquote>');
+
+    // Step 5: Paragraph formatting
+    let blocks = parsed.split(/\n\r?\n+/);
+    let html = blocks.map(block => {
+        let b = block.trim();
+        if (!b) return '';
+        if (b.startsWith('<h1>') || b.startsWith('<h2>') || b.startsWith('<h3>') ||
+            b.startsWith('<table>') || b.startsWith('<blockquote>') || b.startsWith('__CODE_BLOCK_')) {
+            return b;
+        }
+        return `<p>${b.replace(/\n/g, '<br>')}</p>`;
+    }).join('\n');
+
+    // Step 6: Restore preformatted code blocks cleanly without wrapping paragraph tags
+    codeBlocks.forEach((cb, idx) => {
+        let target = `__CODE_BLOCK_${idx}__`;
+        html = html.replace(`<p>${target}</p>`, cb);
+        html = html.replace(target, cb);
+    });
+
+    return html;
 }
-continue;
-} else if (inT) {
-tBuf += '</tbody></table>';
-pLines.push(tBuf);
-inT = false;
-tBuf = '';
+
+async function loadIndex() {
+    const container = document.getElementById('file-list');
+    const headers = { 'Accept': 'application/vnd.github+json' };
+    if (GITHUB_TOKEN && GITHUB_TOKEN !== 'CLOUDFLARE_ESR_PLACEHOLDER') {
+        headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+    }
+
+    try {
+        const res = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${POSTS_DIR}`, { headers });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        allArticles = data.filter(i => i.type === 'file' && i.name.endsWith('.md') && i.name.toLowerCase() !== 'readme.md');
+        document.getElementById('article-count').textContent = allArticles.length;
+        renderList(allArticles);
+        router();
+    } catch (err) {
+        container.innerHTML = '<li style="font-family:var(--font-mono); font-size:0.7rem; color:#f87171; padding:6px;">[LOAD FAILED]</li>';
+    }
 }
-pLines.push(lines[i]);
+
+function renderList(articles) {
+    const container = document.getElementById('file-list');
+    container.innerHTML = '';
+    if (!articles.length) {
+        container.innerHTML = '<li style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-subtle); padding:6px;">[NO ITEMS]</li>';
+        return;
+    }
+    const currentHash = decodeURIComponent(window.location.hash.substring(1));
+    articles.forEach(file => {
+        let cleanName = file.name.replace(/\.md$/, '').replace(/[-_]/g, ' ');
+        let formatted = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+        
+        let li = document.createElement('li');
+        li.className = 'nav-item';
+        let a = document.createElement('a');
+        a.className = `nav-link ${file.name === currentHash ? 'active' : ''}`;
+        a.href = `#${file.name}`;
+        a.setAttribute('data-file', file.name);
+        a.title = formatted;
+
+        let contentDiv = document.createElement('div');
+        contentDiv.className = 'nav-link-content';
+        let dot = document.createElement('div');
+        dot.className = 'nav-link-dot';
+        let textSpan = document.createElement('span');
+        textSpan.style.overflow = 'hidden';
+        textSpan.style.textOverflow = 'ellipsis';
+        textSpan.style.whiteSpace = 'nowrap';
+        textSpan.textContent = formatted;
+
+        contentDiv.appendChild(dot);
+        contentDiv.appendChild(textSpan);
+        a.appendChild(contentDiv);
+        li.appendChild(a);
+        container.appendChild(li);
+    });
 }
-if (inT) pLines.push(tBuf + '</tbody></table>');
-​let html = pLines.join('\n')
-.replace(/^### (.$)/gm, '<h3>$1</h3>')
-.replace(/^## (.$)/gm, '<h2>1</h2>')
-.replace(/^# (.*)/gm, '<h1>$1</h1>')
-.replace(/(.?)/g, '<strong>$1</strong>')
-.replace(/*(.?)*/g, '<em>1</em>')
-.replace(/`([^`]+)`/g, '<code>$1</code>')
-.replace(/^\> (.*$)/gm, '<blockquote>$1</blockquote>')
-.split(/\n\n+/).map(block => {
-let b = block.trim();
-if (b.startsWith('<h') || b.startsWith('<pre') || b.startsWith('<table') || b.startsWith('<blockquote') || b.startsWith('__CODE_BLOCK_') || b === '') return b;
-return `<p>{b.replace(/\n/g, '
-')}</p>`;
-}).join('\n');
-​// Restore code blocks
-codeBlocks.forEach((cb, idx) => {
-html = html.replace(__CODE_BLOCK_${idx}__, cb);
-});
-​return html;
+
+function filterArticles() {
+    const query = document.getElementById('search-input').value.toLowerCase();
+    renderList(allArticles.filter(f => f.name.toLowerCase().includes(query)));
 }
-​async function loadIndex() {
-const container = document.getElementById('file-list');
-const headers = { 'Accept': 'application/vnd.github+json' };
-if (GITHUB_TOKEN && GITHUB_TOKEN !== 'CLOUDFLARE_ESR_PLACEHOLDER') {
-headers['Authorization'] = Bearer ${GITHUB_TOKEN};
+
+async function router() {
+    const hash = decodeURIComponent(window.location.hash.substring(1));
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-file') === hash);
+    });
+
+    if (hash) {
+        const url = POSTS_DIR ? 
+            `https://raw.githubusercontent.com/${USERNAME}/${REPO}/main/${POSTS_DIR}/${hash}` : 
+            `https://raw.githubusercontent.com/${USERNAME}/${REPO}/main/${hash}`;
+        
+        currentTitle = hash.replace(/\.md$/, '').replace(/[-_]/g, ' ');
+        let formattedTitle = currentTitle.charAt(0).toUpperCase() + currentTitle.slice(1);
+        
+        const body = document.getElementById('content-body');
+        body.innerHTML = '<p style="font-family:var(--font-mono); color:var(--text-subtle);">[FETCHING...]</p>';
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error();
+            rawMarkdown = await res.text();
+
+            document.getElementById('page-title').textContent = formattedTitle;
+            document.title = `${formattedTitle} // Explained`;
+
+            let words = rawMarkdown.split(/\s+/).filter(Boolean).length;
+            let readTime = Math.max(1, Math.ceil(words / 200));
+            document.getElementById('read-time').textContent = `📖 ${readTime} MIN READ (${words} WORDS)`;
+            document.getElementById('share-btn').style.display = 'inline-block';
+
+            body.innerHTML = compileMarkdown(rawMarkdown);
+            document.querySelector('.main-viewport').scrollTop = 0;
+        } catch (e) {
+            body.innerHTML = '<p style="font-family:var(--font-mono); color:#f87171;">[ERROR: Could not load explanation]</p>';
+        }
+    } else {
+        goHome();
+    }
 }
-​try {
-const res = await fetch(https://api.github.com/repos/${USERNAME}/${REPO}/contents/${POSTS_DIR}, { headers });
-if (!res.ok) throw new Error();
-const data = await res.json();
-allArticles = data.filter(i => i.type === 'file' && i.name.endsWith('.md') && i.name.toLowerCase() !== 'readme.md');
-document.getElementById('article-count').textContent = allArticles.length;
-renderList(allArticles);
-router();
-} catch (err) {
-container.innerHTML = '<li style="font-family:var(--font-mono); font-size:0.7rem; color:#f87171; padding:6px;">[LOAD FAILED]</li>';
+
+function goHome() {
+    window.location.hash = '';
+    document.getElementById('page-title').textContent = 'Explanations of the Web';
+    document.title = 'Explained // Web Explanations';
+    document.getElementById('read-time').textContent = 'Explore the curated collection';
+    document.getElementById('share-btn').style.display = 'none';
+    document.getElementById('content-body').innerHTML = '<p style="color: var(--text-subtle); font-family: var(--font-mono);">Pick an explanation from the sidebar navigation menu</p>';
+    const mainVp = document.querySelector('.main-viewport');
+    mainVp.scrollTop = 0;
+    document.getElementById('article-header-elem').classList.remove('scrolled');
 }
+
+function handleMainScroll(e) {
+    const header = document.getElementById('article-header-elem');
+    if (e.target.scrollTop > 20) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
 }
-​function renderList(articles) {
-const container = document.getElementById('file-list');
-container.innerHTML = '';
-if (!articles.length) {
-container.innerHTML = '<li style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-subtle); padding:6px;">[NO ITEMS]</li>';
-return;
+
+async function shareDoc() {
+    if (navigator.share) {
+        await navigator.share({ title: document.title, url: window.location.href });
+    } else {
+        await navigator.clipboard.writeText(window.location.href);
+        const btn = document.getElementById('share-btn');
+        btn.textContent = '✅ COPIED';
+        setTimeout(() => { btn.textContent = '🔗 SHARE'; }, 2000);
+    }
 }
-const currentHash = decodeURIComponent(window.location.hash.substring(1));
-articles.forEach(file => {
-let cleanName = file.name.replace(/.md$/, '').replace(/[-_]/g, ' ');
-let formatted = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
-​let li = document.createElement('li');
-li.className = 'nav-item';
-let a = document.createElement('a');
-a.className = nav-link ${file.name === currentHash ? 'active' : ''};
-a.href = #${file.name};
-a.setAttribute('data-file', file.name);
-a.title = formatted;
-​let contentDiv = document.createElement('div');
-contentDiv.className = 'nav-link-content';
-let dot = document.createElement('div');
-dot.className = 'nav-link-dot';
-let textSpan = document.createElement('span');
-textSpan.style.overflow = 'hidden';
-textSpan.style.textOverflow = 'ellipsis';
-textSpan.style.whiteSpace = 'nowrap';
-textSpan.textContent = formatted;
-​contentDiv.appendChild(dot);
-contentDiv.appendChild(textSpan);
-a.appendChild(contentDiv);
-li.appendChild(a);
-container.appendChild(li);
-});
-}
-​function filterArticles() {
-const query = document.getElementById('search-input').value.toLowerCase();
-renderList(allArticles.filter(f => f.name.toLowerCase().includes(query)));
-}
-​async function router() {
-const hash = decodeURIComponent(window.location.hash.substring(1));
-document.querySelectorAll('.nav-link').forEach(link => {
-link.classList.toggle('active', link.getAttribute('data-file') === hash);
-});
-​if (hash) {
-const url = POSTS_DIR ?
-https://raw.githubusercontent.com/${USERNAME}/${REPO}/main/${POSTS_DIR}/${hash} :
-https://raw.githubusercontent.com/${USERNAME}/${REPO}/main/${hash};
-​currentTitle = hash.replace(/.md$/, '').replace(/[-_]/g, ' ');
-let formattedTitle = currentTitle.charAt(0).toUpperCase() + currentTitle.slice(1);
-​const body = document.getElementById('content-body');
-body.innerHTML = '<p style="font-family:var(--font-mono); color:var(--text-subtle);">[FETCHING...]</p>';
-​try {
-const res = await fetch(url);
-if (!res.ok) throw new Error();
-rawMarkdown = await res.text();
-​document.getElementById('page-title').textContent = formattedTitle;
-document.title = ${formattedTitle} // Explained;
-​let words = rawMarkdown.split(/\s+/).filter(Boolean).length;
-let readTime = Math.max(1, Math.ceil(words / 200));
-document.getElementById('read-time').textContent = 📖 ${readTime} MIN READ (${words} WORDS);
-document.getElementById('share-btn').style.display = 'inline-block';
-​body.innerHTML = compileMarkdown(rawMarkdown);
-document.querySelector('.main-viewport').scrollTop = 0;
-} catch (e) {
-body.innerHTML = '<p style="font-family:var(--font-mono); color:#f87171;">[ERROR: Could not load explanation]</p>';
-}
-} else {
-goHome();
-}
-}
-​function goHome() {
-window.location.hash = '';
-document.getElementById('page-title').textContent = 'Explanations of the Web';
-document.title = 'Explained // Web Explanations';
-document.getElementById('read-time').textContent = 'Pick an explanation from the sidebar navigation menu';
-document.getElementById('share-btn').style.display = 'none';
-document.getElementById('content-body').innerHTML = '<p style="color: var(--text-subtle); font-family: var(--font-mono);">Pick an explanation from the sidebar navigation menu</p>';
-const mainVp = document.querySelector('.main-viewport');
-mainVp.scrollTop = 0;
-document.getElementById('article-header-elem').classList.remove('scrolled');
-}
-​function handleMainScroll(e) {
-const header = document.getElementById('article-header-elem');
-if (e.target.scrollTop > 20) {
-header.classList.add('scrolled');
-} else {
-header.classList.remove('scrolled');
-}
-}
-​async function shareDoc() {
-if (navigator.share) {
-await navigator.share({ title: document.title, url: window.location.href });
-} else {
-await navigator.clipboard.writeText(window.location.href);
-const btn = document.getElementById('share-btn');
-btn.textContent = '✅ COPIED';
-setTimeout(() => { btn.textContent = '🔗 SHARE'; }, 2000);
-}
-}
-​loadIndex();
+
+loadIndex();
 window.addEventListener('hashchange', router);
 </script>
 </body>
