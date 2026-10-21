@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>local markdown index · privacy first</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #fefefe;
+            --surface: #ffffff;
+            --text: #1a1e24;
+            --text-light: #4a5568;
+            --border: #e2e8f0;
+            --accent: #2b6cb0;
+            --accent-soft: #ebf4ff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02);
+            --radius: 14px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #11161d;
+                --surface: #1a212b;
+                --text: #edf2f7;
+                --text-light: #a0afbe;
+                --border: #2d3748;
+                --accent: #63b3ed;
+                --accent-soft: #1e2a3a;
+                --shadow: 0 2px 6px rgba(0,0,0,0.3);
+            }
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            padding: 1rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.15s ease;
+        }
+
+        .app {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+            gap: 1rem 0.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.65rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .privacy-badge {
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            background: var(--surface);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .search-wrapper {
+            flex: 1 1 240px;
+            position: relative;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 0.7rem 1rem 0.7rem 2.4rem;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            box-shadow: var(--shadow);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .search-wrapper input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15);
+        }
+
+        .search-wrapper::before {
+            content: '🔍';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.6;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .refresh-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.7rem 1.3rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: background 0.1s, border-color 0.1s;
+            white-space: nowrap;
+        }
+
+        .refresh-btn:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+        }
+
+        .file-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .file-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.4rem;
+            box-shadow: var(--shadow);
+            transition: border-color 0.1s, transform 0.05s;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            word-break: break-word;
+        }
+
+        .file-card:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .file-info {
+            flex: 1 1 200px;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-name span {
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+
+        .file-meta {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .file-meta .path-badge {
+            background: var(--bg);
+            padding: 0.15rem 0.6rem;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.7rem;
+            letter-spacing: -0.01em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3.5rem 1.5rem;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px dashed var(--border);
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .empty-state strong {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .loader {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        #dirPicker {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            body { padding: 0.75rem; }
+            .header h1 { font-size: 1.3rem; }
+            .file-card { padding: 0.9rem 1rem; }
+            .refresh-btn { padding: 0.6rem 1rem; font-size: 0.85rem; }
+        }
+
+        .file-card:focus-visible,
+        .refresh-btn:focus-visible,
+        .search-wrapper input:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1>
+                📁 markdown index
+                <span class="privacy-badge">local · privacy first</span>
+            </h1>
+            <div class="stats" id="statsDisplay">0 files</div>
+        </div>
+
+        <div class="toolbar">
+            <div class="search-wrapper">
+                <input type="search" id="searchInput" placeholder="filter by filename or path…" autocomplete="off" aria-label="Filter markdown files">
+            </div>
+            <button class="refresh-btn" id="refreshBtn" title="Re-scan directory">
+                ⟳ refresh
+            </button>
+        </div>
+
+        <div id="fileContainer" class="file-grid" aria-live="polite">
+            <div class="loader">reading directory…</div>
+        </div>
+    </div>
+
+    <input type="file" id="dirPicker" webkitdirectory directory multiple>
+
+    <script>
+        (function() {
+            "use strict";
+
+            let allMarkdownFiles = [];
+            let filteredFiles = [];
+            let currentSearchTerm = '';
+
+            const fileContainer = document.getElementById('fileContainer');
+            const statsDisplay = document.getElementById('statsDisplay');
+            const searchInput = document.getElementById('searchInput');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const dirPicker = document.getElementById('dirPicker');
+
+            function formatSize(bytes) {
+                if (bytes === undefined || bytes === null) return '—';
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            }
+
+            function applyFilterAndRender() {
+                const term = currentSearchTerm.trim().toLowerCase();
+                if (!term) {
+                    filteredFiles = allMarkdownFiles.slice();
+                } else {
+                    filteredFiles = allMarkdownFiles.filter(f => {
+                        return f.name.toLowerCase().includes(term) ||
+                               (f.relativePath && f.relativePath.toLowerCase().includes(term));
+                    });
+                }
+
+                const total = allMarkdownFiles.length;
+                const shown = filteredFiles.length;
+                statsDisplay.textContent = term ?
+                    `${shown} of ${total} file${total !== 1 ? 's' : ''}` :
+                    `${total} file${total !== 1 ? 's' : ''}`;
+
+                renderFileList(filteredFiles);
+            }
+
+            function renderFileList(files) {
+                if (!files.length) {
+                    fileContainer.innerHTML = `
+                        <div class="empty-state">
+                            <strong>No markdown files found</strong><br>
+                            <span style="font-size:0.9rem;">try refreshing or check the directory</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+
+                files.forEach((file) => {
+                    const card = document.createElement('div');
+                    card.className = 'file-card';
+                    card.setAttribute('role', 'button');
+                    card.setAttribute('tabindex', '0');
+                    card.setAttribute('aria-label', `markdown file: ${file.name}`);
+
+                    const displayName = file.name;
+                    const relative = file.relativePath || file.path || '(root)';
+                    const sizeStr = file.size ? formatSize(file.size) : '';
+
+                    card.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-name">
+                                <span>📄</span> ${escapeHtml(displayName)}
+                            </div>
+                            <div class="file-meta">
+                                <span class="path-badge">${escapeHtml(relative)}</span>
+                                ${sizeStr ? `<span>${sizeStr}</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="color:var(--text-light);font-size:1.2rem;">→</div>
+                    `;
+
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        openMarkdownPreview(file);
+                    });
+
+                    card.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            openMarkdownPreview(file);
+                        }
+                    });
+
+                    fragment.appendChild(card);
+                });
+
+                fileContainer.innerHTML = '';
+                fileContainer.appendChild(fragment);
+            }
+
+            function escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            function openMarkdownPreview(fileEntry) {
+                if (!fileEntry.file) {
+                    alert('File reference expired, please refresh the directory.');
+                    return;
+                }
+
+                const file = fileEntry.file;
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const previewHtml = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head><meta charset="UTF-8"><title>${escapeHtml(fileEntry.name)}</title>
+                        <style>
+                            body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto; background: #fefefe; color: #1a1e24; line-height: 1.6; }
+                            pre { background: #f4f7fa; padding: 1.2rem; border-radius: 16px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; border: 1px solid #e2e8f0; }
+                            .file-meta { color: #4a5568; font-size: 0.9rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+                        </style>
+                        </head>
+                        <body>
+                            <div class="file-meta">📄 ${escapeHtml(fileEntry.name)} &nbsp;·&nbsp; ${formatSize(fileEntry.size)}</div>
+                            <pre>${escapeHtml(content)}</pre>
+                        </body>
+                        </html>
+                    `;
+                    const blob = new Blob([previewHtml], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                    setTimeout(() => URL.revokeObjectURL(url), 30000);
+                };
+
+                reader.onerror = () => {
+                    alert('Could not read file.');
+                };
+
+                reader.readAsText(file);
+            }
+
+            function handleDirectorySelection(files) {
+                if (!files || files.length === 0) {
+                    if (!allMarkdownFiles.length) {
+                        fileContainer.innerHTML = `<div class="empty-state"><strong>No directory selected</strong><br>click refresh to choose a folder</div>`;
+                        statsDisplay.textContent = '0 files';
+                    }
+                    return;
+                }
+
+                fileContainer.innerHTML = `<div class="loader">🔍 scanning markdown files…</div>`;
+
+                const mdFiles = [];
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const name = file.name;
+                    if (name.toLowerCase().endsWith('.md') || name.toLowerCase().endsWith('.markdown')) {
+                        const relPath = file.webkitRelativePath || name;
+                        mdFiles.push({
+                            name: name,
+                            relativePath: relPath,
+                            size: file.size,
+                            lastModified: file.lastModified,
+                            file: file,
+                        });
+                    }
+                }
+
+                mdFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+
+                allMarkdownFiles = mdFiles;
+                currentSearchTerm = searchInput.value;
+                applyFilterAndRender();
+            }
+
+            function triggerDirectoryPicker() {
+                dirPicker.value = '';
+                dirPicker.click();
+            }
+
+            dirPicker.addEventListener('change', (event) => {
+                const files = event.target.files;
+                handleDirectorySelection(files);
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                currentSearchTerm = e.target.value;
+                applyFilterAndRender();
+            });
+
+            refreshBtn.addEventListener('click', () => {
+                triggerDirectoryPicker();
+            });
+
+            function initialLoad() {
+                fileContainer.innerHTML = `
+                    <div class="empty-state">
+                        <strong>🔒 privacy first</strong><br>
+                        <span style="font-size:0.9rem; display:block; margin-top:0.5rem;">
+                            Click <b>refresh</b> to select a folder.<br>
+                            All processing happens locally — nothing is uploaded.
+                        </span>
+                    </div>
+                `;
+                statsDisplay.textContent = '0 files';
+            }
+
+            if (dirPicker.webkitdirectory === undefined) {
+                dirPicker.removeAttribute('webkitdirectory');
+                dirPicker.setAttribute('multiple', 'multiple');
+            }
+
+            initialLoad();
+        })();
+    </script>
+</body>
+</html>
