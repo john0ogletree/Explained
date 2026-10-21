@@ -2,518 +2,525 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>local markdown index · privacy first</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="doc-title">Explained</title>
+    
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
-
-        :root {
-            --bg: #fefefe;
-            --surface: #ffffff;
-            --text: #1a1e24;
-            --text-light: #4a5568;
-            --border: #e2e8f0;
-            --accent: #2b6cb0;
-            --accent-soft: #ebf4ff;
-            --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02);
-            --radius: 14px;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #11161d;
-                --surface: #1a212b;
-                --text: #edf2f7;
-                --text-light: #a0afbe;
-                --border: #2d3748;
-                --accent: #63b3ed;
-                --accent-soft: #1e2a3a;
-                --shadow: 0 2px 6px rgba(0,0,0,0.3);
-            }
-        }
-
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            line-height: 1.5;
-            padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #24292f;
+            line-height: 1.7;
+            background-color: #ffffff;
+            display: grid;
+            grid-template-columns: 20% 80%;
             min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* 20% Sidebar */
+        .sidebar {
+            background: #f6f8fa;
+            border-right: 1px solid #d0d7de;
+            padding: 28px 18px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            transition: background-color 0.15s ease;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
-        .app {
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-bottom: 1.75rem;
-            gap: 1rem 0.5rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1rem;
-        }
-
-        .header h1 {
-            font-size: 1.65rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .privacy-badge {
-            font-size: 0.7rem;
-            font-weight: 500;
-            background: var(--accent-soft);
-            color: var(--accent);
-            padding: 0.2rem 0.7rem;
-            border-radius: 20px;
-            letter-spacing: 0.3px;
-            border: 1px solid var(--border);
-            white-space: nowrap;
-        }
-
-        .stats {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            background: var(--surface);
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            align-items: center;
-        }
-
-        .search-wrapper {
-            flex: 1 1 240px;
-            position: relative;
-        }
-
-        .search-wrapper input {
-            width: 100%;
-            padding: 0.7rem 1rem 0.7rem 2.4rem;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            font-size: 0.95rem;
-            outline: none;
-            box-shadow: var(--shadow);
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-
-        .search-wrapper input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15);
-        }
-
-        .search-wrapper::before {
-            content: '🔍';
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0.6;
-            font-size: 0.9rem;
-            pointer-events: none;
-        }
-
-        .refresh-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.7rem 1.3rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 500;
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #d0d7de;
+            color: #111;
             cursor: pointer;
-            box-shadow: var(--shadow);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: background 0.1s, border-color 0.1s;
-            white-space: nowrap;
-        }
-
-        .refresh-btn:hover {
-            background: var(--accent-soft);
-            border-color: var(--accent);
-        }
-
-        .file-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-        }
-
-        .file-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1rem 1.4rem;
-            box-shadow: var(--shadow);
-            transition: border-color 0.1s, transform 0.05s;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
             word-break: break-word;
         }
 
-        .file-card:hover {
-            border-color: var(--accent);
-            background: var(--accent-soft);
-        }
-
-        .file-info {
-            flex: 1 1 200px;
-            min-width: 0;
-        }
-
-        .file-name {
-            font-weight: 600;
-            font-size: 1rem;
+        .nav-controls {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .file-name span {
-            font-size: 1.2rem;
-            opacity: 0.7;
+        button { 
+            background: #ffffff; 
+            border: 1px solid rgba(27,31,36,0.15); 
+            padding: 9px 14px; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            border-radius: 6px; 
+            font-weight: 500;
+            color: #24292f;
+            text-align: left;
+            transition: background 0.15s ease, border-color 0.15s ease;
+            width: 100%;
+            word-break: break-word;
+        }
+        button:hover { 
+            background: #f3f4f6; 
+            border-color: rgba(27,31,36,0.3);
         }
 
-        .file-meta {
+        #share-btn { display: none; }
+
+        .sidebar-nav-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #57606a;
+            margin: 16px 0 8px 0;
+        }
+
+        ul#file-list { 
+            list-style: none; 
+            padding: 0; 
+            margin: 0; 
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        ul#file-list li { 
+            margin: 6px 0; 
+            width: 100%;
+        }
+
+        ul#file-list a { 
+            color: #24292f; 
+            text-decoration: none; 
+            font-size: 0.95rem; 
+            font-weight: 400; 
+            display: block;
+            padding: 7px 10px;
+            border-radius: 6px;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            transition: background 0.12s ease;
+            width: 100%;
+        }
+
+        ul#file-list a:hover { 
+            background: #eaeef2;
+            color: #0969da;
+        }
+
+        ul#file-list a.active {
+            background: #ddf4ff;
+            color: #0969da;
+            font-weight: 600;
+        }
+
+        /* Support Footer inside Sidebar */
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 18px;
+            border-top: 1px solid #d0d7de;
             font-size: 0.8rem;
-            color: var(--text-light);
-            margin-top: 0.25rem;
+            color: #57606a;
+        }
+
+        .sidebar-footer .support-note {
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+            color: #57606a;
+            font-size: 0.78rem;
+        }
+
+        .support-links {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
-            align-items: center;
+            gap: 6px;
         }
 
-        .file-meta .path-badge {
-            background: var(--bg);
-            padding: 0.15rem 0.6rem;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.7rem;
-            letter-spacing: -0.01em;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3.5rem 1.5rem;
-            background: var(--surface);
-            border-radius: var(--radius);
-            border: 1px dashed var(--border);
-            color: var(--text-light);
-            font-size: 1rem;
-        }
-
-        .empty-state strong {
-            color: var(--accent);
+        .support-links a {
+            color: #0969da;
+            background: #ffffff;
+            border: 1px solid #d0d7de;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.75rem;
             font-weight: 500;
         }
 
-        .loader {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-light);
+        .support-links a:hover {
+            background: #f3f4f6;
+            text-decoration: underline;
         }
 
-        #dirPicker {
-            display: none;
+        /* 80% Main Content Area */
+        .main-content {
+            padding: 48px 64px;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 1100px;
         }
 
-        @media (max-width: 500px) {
-            body { padding: 0.75rem; }
-            .header h1 { font-size: 1.3rem; }
-            .file-card { padding: 0.9rem 1rem; }
-            .refresh-btn { padding: 0.6rem 1rem; font-size: 0.85rem; }
+        #page-title {
+            margin-top: 0;
+            font-size: 2.4rem;
+            border-bottom: 1px solid #d0d7de;
+            padding-bottom: 16px;
+            color: #111;
+            word-break: break-word;
         }
 
-        .file-card:focus-visible,
-        .refresh-btn:focus-visible,
-        .search-wrapper input:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
+        #content {
+            margin-top: 32px;
+            word-break: break-word;
+            font-size: 1.05rem;
+        }
+
+        #content p {
+            margin: 16px 0;
+        }
+
+        h1, h2, h3 { 
+            color: #111; 
+            border-bottom: 1px solid #eaeaea; 
+            padding-bottom: 8px; 
+            margin-top: 1.8em;
+            word-break: break-word;
+        }
+        h2 { font-size: 1.6rem; }
+        h3 { font-size: 1.3rem; }
+
+        /* Table Styling with Horizontal Scroll Support */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 24px 0;
+            font-size: 0.95rem;
+            background-color: #ffffff;
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        th, td {
+            border: 1px solid #d0d7de;
+            padding: 12px 18px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f6f8fa;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        pre { 
+            background: #f6f8fa; 
+            padding: 18px; 
+            border-radius: 8px; 
+            overflow-x: auto; 
+            border: 1px solid #d0d7de;
+            max-width: 100%;
+            margin: 20px 0;
+        }
+        code { 
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace; 
+            background: rgba(175,184,193,0.2); 
+            padding: 0.2em 0.4em; 
+            border-radius: 4px; 
+            font-size: 85%;
+        }
+        pre code { background: transparent; padding: 0; font-size: 90%; white-space: pre; }
+        blockquote { 
+            border-left: 4px solid #0969da; 
+            margin: 20px 0; 
+            padding: 8px 20px; 
+            color: #57606a; 
+            background: #f6f8fa;
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* Responsive fallback for narrow screens */
+        @media (max-width: 768px) {
+            body { grid-template-columns: 30% 70%; }
+            .main-content { padding: 28px 24px; }
         }
     </style>
 </head>
 <body>
-    <div class="app">
-        <div class="header">
-            <h1>
-                📁 markdown index
-                <span class="privacy-badge">local · privacy first</span>
-            </h1>
-            <div class="stats" id="statsDisplay">0 files</div>
+
+    <!-- 20% Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-title" onclick="showIndex()">Explained</div>
+        
+        <div class="nav-controls">
+            <button id="share-btn" onclick="shareArticle()">🔗 Share</button>
         </div>
 
-        <div class="toolbar">
-            <div class="search-wrapper">
-                <input type="search" id="searchInput" placeholder="filter by filename or path…" autocomplete="off" aria-label="Filter markdown files">
+        <div class="sidebar-nav-header">Articles</div>
+        <ul id="file-list">
+            <li style="font-size:0.85rem; color:#666;">Loading...</li>
+        </ul>
+
+        <!-- Support Footer -->
+        <div class="sidebar-footer">
+            <div class="support-note">If you find these write-ups helpful and would like to support my independent work, tips are always appreciated:</div>
+            <div class="support-links">
+                <a href="https://cash.app/$john0ogletree" target="_blank" rel="noopener">Cash App</a>
+                <a href="https://chime.com/john0ogletree" target="_blank" rel="noopener">Chime</a>
+                <a href="https://venmo.com/john0ogletree" target="_blank" rel="noopener">Venmo</a>
+                <a href="https://paypal.me/john0ogletree" target="_blank" rel="noopener">PayPal</a>
             </div>
-            <button class="refresh-btn" id="refreshBtn" title="Re-scan directory">
-                ⟳ refresh
-            </button>
         </div>
+    </aside>
 
-        <div id="fileContainer" class="file-grid" aria-live="polite">
-            <div class="loader">reading directory…</div>
+    <!-- 80% Main Content Area -->
+    <main class="main-content">
+        <h1 id="page-title">Overview</h1>
+        <div id="content">
+            <p>Select a topic from the sidebar.</p>
         </div>
-    </div>
-
-    <input type="file" id="dirPicker" webkitdirectory directory multiple>
+    </main>
 
     <script>
-        (function() {
-            "use strict";
+        const USERNAME = 'john0ogletree';
+        const REPO = 'explained';
+        const POSTS_DIR = '';
+        const GITHUB_TOKEN = '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';
 
-            let allMarkdownFiles = [];
-            let filteredFiles = [];
-            let currentSearchTerm = '';
+        let currentMarkdownText = '';
+        let currentTitle = '';
 
-            const fileContainer = document.getElementById('fileContainer');
-            const statsDisplay = document.getElementById('statsDisplay');
-            const searchInput = document.getElementById('searchInput');
-            const refreshBtn = document.getElementById('refreshBtn');
-            const dirPicker = document.getElementById('dirPicker');
+        // Zero-dependency native Markdown parser with table support
+        function parseMarkdown(text) {
+            let html = text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
 
-            function formatSize(bytes) {
-                if (bytes === undefined || bytes === null) return '—';
-                if (bytes < 1024) return bytes + ' B';
-                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-            }
+            const lines = html.split('\n');
+            let inTable = false;
+            let tableHtml = '';
+            let processedLines = [];
 
-            function applyFilterAndRender() {
-                const term = currentSearchTerm.trim().toLowerCase();
-                if (!term) {
-                    filteredFiles = allMarkdownFiles.slice();
-                } else {
-                    filteredFiles = allMarkdownFiles.filter(f => {
-                        return f.name.toLowerCase().includes(term) ||
-                               (f.relativePath && f.relativePath.toLowerCase().includes(term));
-                    });
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (line.startsWith('|') && line.endsWith('|')) {
+                    if (line.replace(/[\s\|:-]/g, '') === '') {
+                        continue; 
+                    }
+                    
+                    if (!inTable) {
+                        inTable = true;
+                        tableHtml = '<table>\n';
+                    }
+
+                    let cells = line.split('|').slice(1, -1);
+                    let rowType = !tableHtml.includes('<thead>') ? 'th' : 'td';
+                    
+                    if (rowType === 'th') {
+                        tableHtml += '  <thead>\n    <tr>\n';
+                        cells.forEach(cell => { tableHtml += `      <th>${cell.trim()}</th>\n`; });
+                        tableHtml += '    </tr>\n  </thead>\n  <tbody>\n';
+                    } else {
+                        tableHtml += '    <tr>\n';
+                        cells.forEach(cell => { tableHtml += `      <td>${cell.trim()}</td>\n`; });
+                        tableHtml += '    </tr>\n';
+                    }
+                    continue;
+                } else if (inTable) {
+                    tableHtml += '  </tbody>\n</table>';
+                    processedLines.push(tableHtml);
+                    inTable = false;
+                    tableHtml = '';
                 }
-
-                const total = allMarkdownFiles.length;
-                const shown = filteredFiles.length;
-                statsDisplay.textContent = term ?
-                    `${shown} of ${total} file${total !== 1 ? 's' : ''}` :
-                    `${total} file${total !== 1 ? 's' : ''}`;
-
-                renderFileList(filteredFiles);
+                processedLines.push(lines[i]);
+            }
+            if (inTable) {
+                tableHtml += '  </tbody>\n</table>';
+                processedLines.push(tableHtml);
             }
 
-            function renderFileList(files) {
-                if (!files.length) {
-                    fileContainer.innerHTML = `
-                        <div class="empty-state">
-                            <strong>No markdown files found</strong><br>
-                            <span style="font-size:0.9rem;">try refreshing or check the directory</span>
-                        </div>
-                    `;
+            html = processedLines.join('\n');
+
+            return html
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/^\> (.*$)/gm, '<blockquote>$1</blockquote>')
+                .split(/\n\n+/)
+                .map(para => {
+                    para = para.trim();
+                    if (!para.startsWith('<h') && !para.startsWith('<blockquote') && !para.startsWith('<table') && para.length > 0) {
+                        return `<p>${para.replace(/\n/g, '<br>')}</p>`;
+                    }
+                    return para;
+                })
+                .join('\n');
+        }
+
+        async function router() {
+            const hash = window.location.hash.substring(1);
+            updateActiveSidebarLink(hash);
+
+            if (hash) {
+                const filename = decodeURIComponent(hash);
+                currentTitle = filename.replace(/\.md$/, '').replace(/[-_]/g, ' ');
+                const formattedTitle = currentTitle.charAt(0).toUpperCase() + currentTitle.slice(1);
+                const url = POSTS_DIR ? `https://raw.githubusercontent.com/${USERNAME}/${REPO}/main/${POSTS_DIR}/${filename}` : `https://raw.githubusercontent.com/${USERNAME}/${REPO}/main/${filename}`;
+                await loadMarkdownContent(url, formattedTitle);
+            } else {
+                showIndexView();
+            }
+        }
+
+        async function loadMarkdownFiles() {
+            const listContainer = document.getElementById('file-list');
+            const apiUrl = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${POSTS_DIR}`;
+
+            const headers = { 'Accept': 'application/vnd.github+json' };
+            if (GITHUB_TOKEN) {
+                headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+            }
+
+            try {
+                const response = await fetch(apiUrl, { headers });
+                if (!response.ok) throw new Error('Network error');
+
+                const items = await response.json();
+                
+                const mdFiles = items.filter(item => 
+                    item.type === 'file' && 
+                    item.name.endsWith('.md') && 
+                    item.name.toLowerCase() !== 'readme.md'
+                );
+
+                listContainer.innerHTML = '';
+
+                if (mdFiles.length === 0) {
+                    listContainer.innerHTML = '<li style="font-size:0.85rem; color:#666;">No files.</li>';
                     return;
                 }
 
-                const fragment = document.createDocumentFragment();
+                const currentHash = window.location.hash.substring(1);
 
-                files.forEach((file) => {
-                    const card = document.createElement('div');
-                    card.className = 'file-card';
-                    card.setAttribute('role', 'button');
-                    card.setAttribute('tabindex', '0');
-                    card.setAttribute('aria-label', `markdown file: ${file.name}`);
+                mdFiles.forEach(file => {
+                    const title = file.name
+                        .replace(/\.md$/, '')
+                        .replace(/[-_]/g, ' ');
 
-                    const displayName = file.name;
-                    const relative = file.relativePath || file.path || '(root)';
-                    const sizeStr = file.size ? formatSize(file.size) : '';
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.textContent = title.charAt(0).toUpperCase() + title.slice(1);
+                    a.href = `#${file.name}`;
+                    a.setAttribute('data-file', file.name);
 
-                    card.innerHTML = `
-                        <div class="file-info">
-                            <div class="file-name">
-                                <span>📄</span> ${escapeHtml(displayName)}
-                            </div>
-                            <div class="file-meta">
-                                <span class="path-badge">${escapeHtml(relative)}</span>
-                                ${sizeStr ? `<span>${sizeStr}</span>` : ''}
-                            </div>
-                        </div>
-                        <div style="color:var(--text-light);font-size:1.2rem;">→</div>
-                    `;
+                    if (file.name === decodeURIComponent(currentHash)) {
+                        a.classList.add('active');
+                    }
 
-                    card.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        openMarkdownPreview(file);
-                    });
-
-                    card.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            openMarkdownPreview(file);
-                        }
-                    });
-
-                    fragment.appendChild(card);
+                    li.appendChild(a);
+                    listContainer.appendChild(li);
                 });
 
-                fileContainer.innerHTML = '';
-                fileContainer.appendChild(fragment);
+            } catch (error) {
+                listContainer.innerHTML = '<li style="font-size:0.85rem; color:#d9381e;">Error.</li>';
             }
+        }
 
-            function escapeHtml(unsafe) {
-                if (!unsafe) return '';
-                return unsafe
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;");
-            }
-
-            function openMarkdownPreview(fileEntry) {
-                if (!fileEntry.file) {
-                    alert('File reference expired, please refresh the directory.');
-                    return;
+        function updateActiveSidebarLink(currentFilename) {
+            const links = document.querySelectorAll('#file-list a');
+            links.forEach(link => {
+                if (link.getAttribute('data-file') === decodeURIComponent(currentFilename)) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
                 }
+            });
+        }
 
-                const file = fileEntry.file;
-                const reader = new FileReader();
+        async function loadMarkdownContent(fileUrl, title) {
+            const contentDiv = document.getElementById('content');
+            const pageTitle = document.getElementById('page-title');
+            const shareBtn = document.getElementById('share-btn');
 
-                reader.onload = (e) => {
-                    const content = e.target.result;
-                    const previewHtml = `
-                        <!DOCTYPE html>
-                        <html>
-                        <head><meta charset="UTF-8"><title>${escapeHtml(fileEntry.name)}</title>
-                        <style>
-                            body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto; background: #fefefe; color: #1a1e24; line-height: 1.6; }
-                            pre { background: #f4f7fa; padding: 1.2rem; border-radius: 16px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; border: 1px solid #e2e8f0; }
-                            .file-meta { color: #4a5568; font-size: 0.9rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1.5rem; }
-                        </style>
-                        </head>
-                        <body>
-                            <div class="file-meta">📄 ${escapeHtml(fileEntry.name)} &nbsp;·&nbsp; ${formatSize(fileEntry.size)}</div>
-                            <pre>${escapeHtml(content)}</pre>
-                        </body>
-                        </html>
-                    `;
-                    const blob = new Blob([previewHtml], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    window.open(url, '_blank');
-                    setTimeout(() => URL.revokeObjectURL(url), 30000);
-                };
+            contentDiv.innerHTML = '<p>Loading...</p>';
 
-                reader.onerror = () => {
-                    alert('Could not read file.');
-                };
+            try {
+                const response = await fetch(fileUrl);
+                if (!response.ok) throw new Error('Fetch error');
+                currentMarkdownText = await response.text();
+                
+                pageTitle.textContent = title;
+                document.title = `${title} - Explained`;
+                
+                shareBtn.style.display = 'block';
+                shareBtn.textContent = '🔗 Share';
 
-                reader.readAsText(file);
+                contentDiv.innerHTML = parseMarkdown(currentMarkdownText);
+            } catch (error) {
+                contentDiv.innerHTML = '<p>Error loading content.</p>';
             }
+        }
 
-            function handleDirectorySelection(files) {
-                if (!files || files.length === 0) {
-                    if (!allMarkdownFiles.length) {
-                        fileContainer.innerHTML = `<div class="empty-state"><strong>No directory selected</strong><br>click refresh to choose a folder</div>`;
-                        statsDisplay.textContent = '0 files';
-                    }
-                    return;
+        async function shareArticle() {
+            const formattedTitle = currentTitle.charAt(0).toUpperCase() + currentTitle.slice(1);
+            
+            const shareData = {
+                title: formattedTitle,
+                text: `Explained: ${formattedTitle}`,
+                url: window.location.href
+            };
+
+            const shareBtn = document.getElementById('share-btn');
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    await navigator.clipboard.writeText(`${shareData.text}\n\n${shareData.url}`);
+                    shareBtn.textContent = '✅ Copied!';
+                    setTimeout(() => {
+                        shareBtn.textContent = '🔗 Share';
+                    }, 2000);
                 }
+            } catch (err) {}
+        }
 
-                fileContainer.innerHTML = `<div class="loader">🔍 scanning markdown files…</div>`;
+        function showIndexView() {
+            const contentDiv = document.getElementById('content');
+            const pageTitle = document.getElementById('page-title');
+            const shareBtn = document.getElementById('share-btn');
 
-                const mdFiles = [];
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const name = file.name;
-                    if (name.toLowerCase().endsWith('.md') || name.toLowerCase().endsWith('.markdown')) {
-                        const relPath = file.webkitRelativePath || name;
-                        mdFiles.push({
-                            name: name,
-                            relativePath: relPath,
-                            size: file.size,
-                            lastModified: file.lastModified,
-                            file: file,
-                        });
-                    }
-                }
+            pageTitle.textContent = 'Explained';
+            document.title = 'Explained';
 
-                mdFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+            shareBtn.style.display = 'none';
+            contentDiv.innerHTML = '<p>Select a topic from the sidebar.</p>';
+        }
 
-                allMarkdownFiles = mdFiles;
-                currentSearchTerm = searchInput.value;
-                applyFilterAndRender();
-            }
+        function showIndex() {
+            window.location.hash = '';
+        }
 
-            function triggerDirectoryPicker() {
-                dirPicker.value = '';
-                dirPicker.click();
-            }
-
-            dirPicker.addEventListener('change', (event) => {
-                const files = event.target.files;
-                handleDirectorySelection(files);
-            });
-
-            searchInput.addEventListener('input', (e) => {
-                currentSearchTerm = e.target.value;
-                applyFilterAndRender();
-            });
-
-            refreshBtn.addEventListener('click', () => {
-                triggerDirectoryPicker();
-            });
-
-            function initialLoad() {
-                fileContainer.innerHTML = `
-                    <div class="empty-state">
-                        <strong>🔒 privacy first</strong><br>
-                        <span style="font-size:0.9rem; display:block; margin-top:0.5rem;">
-                            Click <b>refresh</b> to select a folder.<br>
-                            All processing happens locally — nothing is uploaded.
-                        </span>
-                    </div>
-                `;
-                statsDisplay.textContent = '0 files';
-            }
-
-            if (dirPicker.webkitdirectory === undefined) {
-                dirPicker.removeAttribute('webkitdirectory');
-                dirPicker.setAttribute('multiple', 'multiple');
-            }
-
-            initialLoad();
-        })();
+        loadMarkdownFiles();
+        window.addEventListener('hashchange', router);
+        router();
     </script>
+
 </body>
 </html>
