@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 1. STRICT CONTENT SECURITY POLICY (CSP) META TAG -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none';">
 <title id="doc-title">Explained // Web Explanations</title>
 <!-- Chosen Palette: Obsidian & Slate Blue with Fixed Grid & Compact Typography -->
 <style>
@@ -56,7 +58,6 @@ html, body {
 
 .app-layout {
     display: grid;
-    /* Enforces 20% width on desktop, but prevents mobile screens from crushing sidebar below 130px */
     grid-template-columns: minmax(130px, 20vw) 1fr;
     height: 100vh;
     width: 100vw;
@@ -541,10 +542,10 @@ html, body {
         </div>
         <p class="modal-sub">If you find these explanations of the web helpful, voluntary contributions are greatly appreciated:</p>
         <div class="support-buttons-grid">
-            <a class="support-link" href="https://cash.app/$john0ogletree" target="_blank" rel="noopener">Cash App</a>
-            <a class="support-link" href="https://chime.com/john0ogletree" target="_blank" rel="noopener">Chime</a>
-            <a class="support-link" href="https://venmo.com/john0ogletree" target="_blank" rel="noopener">Venmo</a>
-            <a class="support-link" href="https://paypal.me/john0ogletree" target="_blank" rel="noopener">PayPal</a>
+            <a class="support-link" href="https://cash.app/$john0ogletree" target="_blank" rel="noopener noreferrer">Cash App</a>
+            <a class="support-link" href="https://chime.com/john0ogletree" target="_blank" rel="noopener noreferrer">Chime</a>
+            <a class="support-link" href="https://venmo.com/john0ogletree" target="_blank" rel="noopener noreferrer">Venmo</a>
+            <a class="support-link" href="https://paypal.me/john0ogletree" target="_blank" rel="noopener noreferrer">PayPal</a>
         </div>
     </div>
 </div>
@@ -553,14 +554,31 @@ html, body {
 const USERNAME = 'john0ogletree';
 const REPO = 'explained';
 const POSTS_DIR = '';
-const GITHUB_TOKEN = 'CLOUDFLARE_ESR_PLACEHOLDER';
+
+// Retained Cloudflare Worker substitution placeholder
+const GITHUB_TOKEN = 'CLOUDFLARE_ESR_PLACEHOLDER'; 
 
 let allArticles = [];
 let rawMarkdown = '';
 let currentTitle = '';
 
+// Sanitize raw text inputs against script/HTML injection
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Harden localStorage usage against strict privacy/incognito modes
 function initTheme() {
-    const saved = localStorage.getItem('explained_theme') || 'dark';
+    let saved = 'dark';
+    try {
+        saved = localStorage.getItem('explained_theme') || 'dark';
+    } catch (e) {}
     document.documentElement.setAttribute('data-theme', saved);
     document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
 }
@@ -569,7 +587,9 @@ function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('explained_theme', next);
+    try {
+        localStorage.setItem('explained_theme', next);
+    } catch (e) {}
     document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
 }
 
@@ -583,25 +603,23 @@ document.addEventListener('keydown', e => {
 
 initTheme();
 
+// Bulletproof markdown & HTML sanitizer
 function compileMarkdown(md) {
     if (!md) return '';
 
     // Step 1: Protect and extract code blocks before escaping HTML
     let codeBlocks = [];
     let text = md.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (match, lang, code) => {
-        let escapedCode = code
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
+        let escapedCode = escapeHTML(code);
         let placeholder = `\n\n__CODE_BLOCK_${codeBlocks.length}__\n\n`;
-        codeBlocks.push(`<pre><code class="language-${lang || 'text'}">${escapedCode}</code></pre>`);
+        codeBlocks.push(`<pre><code class="language-${escapeHTML(lang || 'text')}">${escapedCode}</code></pre>`);
         return placeholder;
     });
 
-    // Step 2: Escape HTML tags outside code blocks
-    text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    // Step 2: Fully neutralize raw HTML elements in Markdown text
+    text = escapeHTML(text);
 
-    // Step 3: Handle markdown tables
+    // Step 3: Handle Markdown tables securely
     let lines = text.split('\n');
     let inTable = false;
     let tableBuffer = '';
@@ -635,14 +653,15 @@ function compileMarkdown(md) {
         processedLines.push(tableBuffer + '</tbody></table>');
     }
 
-    // Step 4: Line-level parsing for titles, quotes, lists, bold, italic
+    // Step 4: Line-level parsing for headers, quotes, formatting (fixed h2 tag closing)
     let parsed = processedLines.join('\n')
         .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-        .replace(/^## (.*$)/gm, '2>$1</h2>')
+        .replace(/^## (.*$)/gm, '<h2>$1</h2>')
         .replace(/^# (.*$)/gm, '<h1>$1</h1>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/^\&gt; (.*$)/gm, '<blockquote>$1</blockquote>')
         .replace(/^\> (.*$)/gm, '<blockquote>$1</blockquote>');
 
     // Step 5: Paragraph formatting
@@ -657,7 +676,7 @@ function compileMarkdown(md) {
         return `<p>${b.replace(/\n/g, '<br>')}</p>`;
     }).join('\n');
 
-    // Step 6: Restore preformatted code blocks cleanly without wrapping paragraph tags
+    // Step 6: Restore preformatted code blocks cleanly
     codeBlocks.forEach((cb, idx) => {
         let target = `__CODE_BLOCK_${idx}__`;
         html = html.replace(`<p>${target}</p>`, cb);
@@ -667,18 +686,22 @@ function compileMarkdown(md) {
     return html;
 }
 
+// Secure repository path & fetch guard
 async function loadIndex() {
     const container = document.getElementById('file-list');
     const headers = { 'Accept': 'application/vnd.github+json' };
+    
     if (GITHUB_TOKEN && GITHUB_TOKEN !== 'CLOUDFLARE_ESR_PLACEHOLDER') {
         headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
     }
 
     try {
-        const res = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${POSTS_DIR}`, { headers });
+        const fetchUrl = `https://api.github.com/repos/${encodeURIComponent(USERNAME)}/${encodeURIComponent(REPO)}/contents/${encodeURIComponent(POSTS_DIR)}`;
+        const res = await fetch(fetchUrl, { headers });
         if (!res.ok) throw new Error();
         const data = await res.json();
-        allArticles = data.filter(i => i.type === 'file' && i.name.endsWith('.md') && i.name.toLowerCase() !== 'readme.md');
+        
+        allArticles = data.filter(i => i.type === 'file' && typeof i.name === 'string' && i.name.endsWith('.md') && i.name.toLowerCase() !== 'readme.md');
         document.getElementById('article-count').textContent = allArticles.length;
         renderList(allArticles);
         router();
@@ -703,7 +726,7 @@ function renderList(articles) {
         li.className = 'nav-item';
         let a = document.createElement('a');
         a.className = `nav-link ${file.name === currentHash ? 'active' : ''}`;
-        a.href = `#${file.name}`;
+        a.href = `#${encodeURIComponent(file.name)}`;
         a.setAttribute('data-file', file.name);
         a.title = formatted;
 
@@ -730,16 +753,25 @@ function filterArticles() {
     renderList(allArticles.filter(f => f.name.toLowerCase().includes(query)));
 }
 
+// Path traversal preventative router
 async function router() {
-    const hash = decodeURIComponent(window.location.hash.substring(1));
+    let hash = decodeURIComponent(window.location.hash.substring(1)).trim();
+
+    // Prevent Path Traversal in the hash URL (e.g., #../)
+    if (hash.includes('..') || hash.includes('/') || hash.includes('\\')) {
+        goHome();
+        return;
+    }
+
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.toggle('active', link.getAttribute('data-file') === hash);
     });
 
-    if (hash) {
+    if (hash && hash.endsWith('.md')) {
+        const safeHash = encodeURIComponent(hash);
         const url = POSTS_DIR ? 
-            `https://raw.githubusercontent.com/${USERNAME}/${REPO}/main/${POSTS_DIR}/${hash}` : 
-            `https://raw.githubusercontent.com/${USERNAME}/${REPO}/main/${hash}`;
+            `https://raw.githubusercontent.com/${encodeURIComponent(USERNAME)}/${encodeURIComponent(REPO)}/main/${encodeURIComponent(POSTS_DIR)}/${safeHash}` : 
+            `https://raw.githubusercontent.com/${encodeURIComponent(USERNAME)}/${encodeURIComponent(REPO)}/main/${safeHash}`;
         
         currentTitle = hash.replace(/\.md$/, '').replace(/[-_]/g, ' ');
         let formattedTitle = currentTitle.charAt(0).toUpperCase() + currentTitle.slice(1);
@@ -793,12 +825,16 @@ function handleMainScroll(e) {
 
 async function shareDoc() {
     if (navigator.share) {
-        await navigator.share({ title: document.title, url: window.location.href });
+        try {
+            await navigator.share({ title: document.title, url: window.location.href });
+        } catch (e) {}
     } else {
-        await navigator.clipboard.writeText(window.location.href);
-        const btn = document.getElementById('share-btn');
-        btn.textContent = '✅ COPIED';
-        setTimeout(() => { btn.textContent = '🔗 SHARE'; }, 2000);
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            const btn = document.getElementById('share-btn');
+            btn.textContent = '✅ COPIED';
+            setTimeout(() => { btn.textContent = '🔗 SHARE'; }, 2000);
+        } catch (e) {}
     }
 }
 
